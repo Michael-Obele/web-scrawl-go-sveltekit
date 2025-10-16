@@ -1,5 +1,7 @@
 # Web Scraper - SvelteKit & Go
 
+![Latest Release](https://img.shields.io/github/v/tag/Michael-Obele/web-scrawl-go-sveltekit?label=latest%20release&sort=semver)
+
 A modern web scraping application built with SvelteKit frontend and Go backend in a monorepo structure.
 
 ## Project Overview
