@@ -185,8 +185,8 @@ description: "Task list for monorepo initialization feature"
 - [X] T068 Verify .gitignore excludes: node_modules/, bun.lockb, .svelte-kit/, dist/, go.sum (check with `git status`)
 - [X] T069 Create backend/.env.example with PORT=8080 and ALLOWED_ORIGINS=http://localhost:5173
 - [X] T070 Create frontend/.env.example with PUBLIC_BACKEND_URL=http://localhost:8080
-- [ ] T071 Test complete workflow from scratch: follow quickstart.md steps and verify all commands execute successfully
-- [ ] T072 Commit all changes: `git add . && git commit -m "feat: initialize monorepo with SvelteKit and Go"`
+- [X] T071 Test complete workflow from scratch: follow quickstart.md steps and verify all commands execute successfully
+- [X] T072 Commit all changes: `git add . && git commit -m "feat: initialize monorepo with SvelteKit and Go"`
 
 ---
 
