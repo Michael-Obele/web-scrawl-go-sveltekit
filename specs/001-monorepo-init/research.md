@@ -16,26 +16,27 @@ This document consolidates research findings for unknowns identified during plan
 
 ### Decision
 
-Use **official SvelteKit CLI** with Bun adapter:
+Use **official SvelteKit CLI (`sv create`)** with Bun package manager:
 
 ```bash
-bun create svelte@latest frontend
-# Select: Skeleton project, TypeScript, ESLint, Prettier
+npx sv create frontend
+# Select: SvelteKit demo app (or minimal), TypeScript, ESLint, Prettier, Bun
 cd frontend
-bun install
-bun add -D tailwindcss postcss autoprefixer
-bunx tailwindcss init -p
+bun install  # If not done during creation
+npx sv add tailwindcss  # Automated Tailwind setup
 ```
 
 ### Rationale
 
-1. **Official Support**: SvelteKit's `create-svelte` template is maintained by the Svelte team and includes proper TypeScript configuration out of the box
-2. **Bun Compatibility**: Bun can run `create-svelte` directly and acts as a drop-in replacement for npm/pnpm
+1. **Official Support**: `sv create` is the official Svelte CLI maintained by the Svelte team with proper TypeScript configuration
+2. **Bun Integration**: The CLI supports Bun as a first-class package manager option during project creation
 3. **Vite Integration**: SvelteKit uses Vite by default; no additional configuration needed
-4. **Tailwind Setup**: Standard PostCSS plugin approach works seamlessly with Vite
+4. **Automated Tailwind**: `sv add tailwindcss` handles all Tailwind setup automatically (install, config, directives)
+5. **Modern Best Practices**: Uses latest Svelte 5 conventions with runes and proper project structure
 
 ### Alternatives Considered
 
+- **`bun create svelte@latest`**: Deprecated in favor of `sv create` according to official Svelte documentation
 - **Manual Setup**: Rejected due to time cost and potential for misconfiguration (violates velocity-first principle)
 - **Custom Boilerplate**: Rejected as it adds maintenance burden and doesn't leverage community-maintained templates
 - **Vite + Svelte (not SvelteKit)**: Rejected because we need server-side routes for proxying to Go backend
@@ -43,8 +44,12 @@ bunx tailwindcss init -p
 ### Implementation Notes
 
 - Run `bun check` immediately after initialization to validate TypeScript integrity
-- Configure `tailwind.config.js` content paths to scan `./src/**/*.{html,js,svelte,ts}`
-- Add Tailwind directives to global CSS: `@tailwind base; @tailwind components; @tailwind utilities;`
+- Verify `package.json` includes `"type": "module"` for ES modules support
+- The `sv add tailwindcss` command automatically:
+  - Installs tailwindcss, postcss, autoprefixer
+  - Creates tailwind.config.js with proper content paths
+  - Adds Tailwind directives to app.css
+  - Ensures +layout.svelte imports app.css
 
 ---
 
@@ -54,31 +59,38 @@ bunx tailwindcss init -p
 
 ### Decision
 
-Install **shadcn-svelte AFTER Tailwind CSS** is fully configured:
+Use **`bunx shadcn-svelte@latest init`** AFTER Tailwind CSS is fully configured:
 
 ```bash
 # After Tailwind is configured
 bunx shadcn-svelte@latest init
-# Follow prompts: Select default theme, configure components path
+# Follow prompts: Select Slate base color, confirm aliases
+
+# Add specific components
+bunx shadcn-svelte@latest add button
 ```
 
 ### Rationale
 
-1. **Dependency Requirement**: shadcn-svelte's CLI tool expects Tailwind CSS to be already configured and will modify `tailwind.config.js`
-2. **Configuration Merging**: The shadcn-svelte init script adds its own theme tokens to Tailwind config; running it first causes conflicts
-3. **Official Documentation**: shadcn-svelte.com explicitly shows Tailwind setup as a prerequisite
+1. **Official Installation Method**: According to [shadcn-svelte.com](https://shadcn-svelte.com/docs/installation/sveltekit), `shadcn-svelte@latest init` is the official CLI command
+2. **Dependency Requirement**: shadcn-svelte expects Tailwind CSS to be already configured and will modify `tailwind.config.js`
+3. **Configuration Merging**: The shadcn-svelte init script adds its own theme tokens to Tailwind config; running it first causes conflicts
+4. **Consistent with Official Docs**: The official documentation shows using `bunx` (or `pnpm dlx`/`npx`) with the full package name
 
 ### Alternatives Considered
 
+- **`sv add shadcn-svelte`**: Does not exist - shadcn-svelte is not integrated into the Svelte CLI
 - **Simultaneous Installation**: Rejected due to race conditions and config file conflicts
 - **shadcn-svelte First**: Rejected because the CLI fails if Tailwind is not detected
 - **Manual Component Setup**: Rejected as it bypasses accessibility defaults and theme configuration
 
 ### Implementation Notes
 
-- Use `bunx shadcn-svelte@latest add button` to install specific components on demand
+- Creates `components.json` configuration file in project root
 - Components will be placed in `src/lib/components/ui/` by default
 - The CLI automatically handles TypeScript types and Svelte 5 runes compatibility
+- Use `bunx shadcn-svelte@latest add <component-name>` to add individual components
+- Configure import aliases during init to match project structure ($lib, $lib/components, etc.)
 
 ---
 

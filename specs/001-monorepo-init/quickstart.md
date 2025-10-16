@@ -32,28 +32,37 @@ git --version   # Any recent version
 
 ```bash
 # From repository root
-bun create svelte@latest frontend
+npx sv create frontend
 
 # When prompted, select:
-# - Which Svelte app template? → Skeleton project
+# - Which Svelte app template? → SvelteKit demo app (or minimal if you prefer)
 # - Add type checking with TypeScript? → Yes, using TypeScript syntax
 # - Select additional options → ESLint, Prettier (use spacebar to select)
+# - Which package manager? → bun
 
+# Navigate to frontend directory
 cd frontend
+
+# Install dependencies if not done during creation
 bun install
 ```
 
-**Expected output**: SvelteKit project structure created with `package.json`, `svelte.config.js`, `vite.config.ts`
+**Expected output**: SvelteKit project structure created with `package.json` containing `"type": "module"`, `svelte.config.js`, `vite.config.ts`, and standard SvelteKit folder structure (`src/routes/`, `src/lib/`, etc.)
 
 ### 1.2 Install Tailwind CSS
 
 ```bash
 # Still in frontend/ directory
-bun add -D tailwindcss postcss autoprefixer
-bunx tailwindcss init -p
+npx sv add tailwindcss
+
+# This command automatically:
+# - Installs tailwindcss, postcss, autoprefixer
+# - Creates tailwind.config.js and postcss.config.js
+# - Adds Tailwind directives to app.css
+# - Updates +layout.svelte to import app.css
 ```
 
-**Configure Tailwind** - Edit `tailwind.config.js`:
+**Verify Tailwind setup** - Check that `tailwind.config.js` exists:
 
 ```javascript
 /** @type {import('tailwindcss').Config} */
@@ -66,7 +75,7 @@ export default {
 };
 ```
 
-**Add Tailwind directives** - Create `src/app.css`:
+**Verify Tailwind directives** - Check `src/app.css`:
 
 ```css
 @tailwind base;
@@ -74,7 +83,7 @@ export default {
 @tailwind utilities;
 ```
 
-**Import global CSS** - Edit `src/routes/+layout.svelte`:
+**Verify layout imports CSS** - Check `src/routes/+layout.svelte`:
 
 ```svelte
 <script>
@@ -95,12 +104,17 @@ bun add lucide-svelte
 ```bash
 bunx shadcn-svelte@latest init
 
-# When prompted:
-# - Which style would you like to use? → Default
-# - Which color would you like to use as base color? → Slate
+# When prompted, configure:
+# - Which base color would you like to use? → Slate
 # - Where is your global CSS file? → src/app.css
-# - Configure components? → Yes (accept defaults)
+# - Configure the import alias for lib: → $lib (default)
+# - Configure the import alias for components: → $lib/components (default)
+# - Configure the import alias for utils: → $lib/utils (default)
+# - Configure the import alias for hooks: → $lib/hooks (default)
+# - Configure the import alias for ui: → $lib/components/ui (default)
 ```
+
+This creates a `components.json` configuration file.
 
 **Verify shadcn-svelte** - Install a test component:
 
@@ -163,19 +177,27 @@ cd backend
 ```bash
 go mod init github.com/yourusername/web-scraper-backend
 # Replace yourusername with your actual GitHub username
+# Example: go mod init github.com/Michael-Obele/web-scraper-backend
 ```
 
 ### 2.3 Install Go Dependencies
 
 ```bash
-go get github.com/gin-gonic/gin
-go get github.com/gin-contrib/cors
-go get github.com/gocolly/colly/v2
-go get github.com/chromedp/chromedp
-go get github.com/PuerkitoBio/goquery
+# Install all dependencies with -u flag for latest versions
+go get -u github.com/gin-gonic/gin
+go get -u github.com/gin-contrib/cors
+go get -u github.com/gocolly/colly/v2
+go get -u github.com/chromedp/chromedp
+go get -u github.com/PuerkitoBio/goquery
+
+# Clean up and verify dependencies
+go mod tidy
 ```
 
-**Expected output**: Dependencies added to `go.mod`, `go.sum` created
+**Expected output**: 
+- Dependencies added to `go.mod` with version numbers
+- `go.sum` created with dependency checksums
+- `go mod tidy` removes unused dependencies and downloads missing ones
 
 ### 2.4 Create Main Entry Point
 
