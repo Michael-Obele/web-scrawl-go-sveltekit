@@ -1,0 +1,43 @@
+name: Changelog check
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+
+jobs:
+  verify-changelog:
+    name: Verify CHANGELOG
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ensure CHANGELOG.md exists and is non-empty
+        run: |
+          if [ ! -f CHANGELOG.md ]; then
+            echo "ERROR: CHANGELOG.md not found at repository root."; exit 1;
+          fi
+          if [ ! -s CHANGELOG.md ]; then
+            echo "ERROR: CHANGELOG.md exists but is empty."; exit 1;
+          fi
+
+      - name: Ensure PR updates CHANGELOG.md (pull requests only)
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          echo "Fetching base branch ($BASE_REF)..."
+          # fetch the base ref so we can diff against it
+          git fetch origin "$BASE_REF" --depth=1 || true
+
+          echo "Changed files between base and head:"
+          git diff --name-only "origin/$BASE_REF...HEAD" > changed_files.txt || git diff --name-only "origin/$BASE_REF..HEAD" > changed_files.txt || true
+          cat changed_files.txt
+
+          if ! grep -q '^CHANGELOG.md$' changed_files.txt; then
+            echo "ERROR: Pull request does not include a CHANGELOG.md update.";
+            echo "Please add a short entry to CHANGELOG.md describing the change(s) in this PR.";
+            exit 1;
+          fi
