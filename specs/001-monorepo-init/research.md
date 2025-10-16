@@ -49,6 +49,10 @@ npx sv add tailwindcss  # Automated Tailwind setup
   - Installs tailwindcss, postcss, autoprefixer
   - Creates tailwind.config.js with proper content paths
   - Adds Tailwind directives to app.css
+- **Tailwind CSS v4**: Use manual installation with `bun add -D tailwindcss postcss autoprefixer`
+  - Creates tailwind.config.js with ES module syntax
+  - Uses modern `@import 'tailwindcss';` syntax in app.css (not v3's `@tailwind` directives)
+  - Configure content paths: `./src/**/*.{html,js,svelte,ts}`
   - Ensures +layout.svelte imports app.css
 
 ---

@@ -3,21 +3,44 @@
 Auto-generated from all feature plans. Last updated: 2025-10-16
 
 ## Active Technologies
-- (001-monorepo-init)
+
+- SvelteKit (latest) with Svelte 5 runes
+- Bun 1.0+ (package manager and runtime)
+- TypeScript 5.x
+- Tailwind CSS v4 (use `@import 'tailwindcss';` syntax, NOT v3 `@tailwind` directives)
+- shadcn-svelte for UI components
+- Lucide Svelte for icons
+- Go 1.21+ with Gin framework
+- Colly v2, Chromedp, GoQuery for web scraping
 
 ## Project Structure
+
 ```
-src/
-tests/
+frontend/          # SvelteKit app (port 5173)
+backend/           # Go Gin API (port 8080)
+specs/             # Feature specifications
 ```
 
 ## Commands
-# Add commands for 
+
+### Frontend
+
+- `cd frontend && bun dev` - Start development server
+- `bun check` - TypeScript validation
+
+### Backend
+
+- `cd backend && go run main.go` - Start API server
+- `go test ./... -v` - Run tests
 
 ## Code Style
-: Follow standard conventions
+
+- **Frontend**: Svelte 5 runes ($state, $props, $derived), TypeScript strict mode, Tailwind CSS v4
+- **Backend**: Idiomatic Go, clear error handling, modular structure
+- **CSS**: Tailwind v4 uses `@import 'tailwindcss';` in app.css (not v3's `@tailwind` directives)
 
 ## Recent Changes
+
 - 001-monorepo-init: Added
 
 <!-- MANUAL ADDITIONS START -->

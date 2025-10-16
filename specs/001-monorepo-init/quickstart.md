@@ -49,38 +49,43 @@ bun install
 
 **Expected output**: SvelteKit project structure created with `package.json` containing `"type": "module"`, `svelte.config.js`, `vite.config.ts`, and standard SvelteKit folder structure (`src/routes/`, `src/lib/`, etc.)
 
-### 1.2 Install Tailwind CSS
+### 1.2 Install Tailwind CSS v4
 
 ```bash
 # Still in frontend/ directory
-npx sv add tailwindcss
+bun add -D tailwindcss postcss autoprefixer
 
-# This command automatically:
-# - Installs tailwindcss, postcss, autoprefixer
-# - Creates tailwind.config.js and postcss.config.js
-# - Adds Tailwind directives to app.css
-# - Updates +layout.svelte to import app.css
+# Create Tailwind configuration (ES module format for v4)
 ```
 
-**Verify Tailwind setup** - Check that `tailwind.config.js` exists:
+**Create `tailwind.config.js`**:
 
 ```javascript
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ["./src/**/*.{html,js,svelte,ts}"],
+  content: ['./src/**/*.{html,js,svelte,ts}'],
   theme: {
-    extend: {},
+    extend: {}
   },
-  plugins: [],
+  plugins: []
 };
 ```
 
-**Verify Tailwind directives** - Check `src/app.css`:
+**Create `postcss.config.js`**:
+
+```javascript
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {}
+  }
+};
+```
+
+**Update `src/app.css`** with Tailwind v4 imports (NOT v3 directives):
 
 ```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 ```
 
 **Verify layout imports CSS** - Check `src/routes/+layout.svelte`:

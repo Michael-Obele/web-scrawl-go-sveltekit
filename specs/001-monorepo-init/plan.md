@@ -18,7 +18,7 @@ Initialize a monorepo structure with separate frontend (SvelteKit + Bun + TypeSc
 
 **Primary Dependencies**:
 
-- **Frontend**: SvelteKit (latest), Vite, Tailwind CSS 3.x, Lucide Svelte, shadcn-svelte
+- **Frontend**: SvelteKit (latest), Vite, Tailwind CSS v4 (4.x), Lucide Svelte, shadcn-svelte
 - **Backend**: Gin (latest), Colly, Chromedp, GoQuery
 
 **Storage**: In-memory for MVP (no persistent storage for this feature)

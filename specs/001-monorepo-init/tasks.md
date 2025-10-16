@@ -28,10 +28,10 @@ description: "Task list for monorepo initialization feature"
 
 **Purpose**: Project initialization and prerequisite checks
 
-- [ ] T001 Verify Bun runtime installed (version 1.0+) via `bun --version`
-- [ ] T002 Verify Go installed (version 1.21+) via `go version`
-- [ ] T003 Verify ports 5173 and 8080 are available (check with `lsof` or `netstat`)
-- [ ] T004 Create root-level README.md with project overview and setup instructions
+- [X] T001 Verify Bun runtime installed (version 1.0+) via `bun --version`
+- [X] T002 Verify Go installed (version 1.21+) via `go version`
+- [X] T003 Verify ports 5173 and 8080 are available (check with `lsof` or `netstat`)
+- [X] T004 Create root-level README.md with project overview and setup instructions
 
 ---
 
@@ -41,9 +41,9 @@ description: "Task list for monorepo initialization feature"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Create `backend/` directory at repository root
-- [ ] T006 Create `frontend/` directory at repository root
-- [ ] T007 Create `.gitignore` with entries for `node_modules/`, `bun.lockb`, `go.sum`, `.DS_Store`, `dist/`, `.svelte-kit/`
+- [X] T005 Create `backend/` directory at repository root
+- [X] T006 Create `frontend/` directory at repository root
+- [X] T007 Create `.gitignore` with entries for `node_modules/`, `bun.lockb`, `go.sum`, `.DS_Store`, `dist/`, `.svelte-kit/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -57,13 +57,25 @@ description: "Task list for monorepo initialization feature"
 
 #### Frontend Setup (T008-T020)
 
-- [ ] T008 [P] [US1] Run `npx sv create frontend` selecting: SvelteKit demo app, TypeScript syntax, ESLint, Prettier, and use Bun as package manager
+- [X] T008 [P] [US1] Run `npx sv create frontend` selecting: SvelteKit demo app, TypeScript syntax, ESLint, Prettier, and use Bun as package manager
+- [X] T009 [US1] Run `bun install` in frontend/ directory to install SvelteKit dependencies (if not done during project creation)
+- [X] T010 [US1] Verify frontend/package.json created with SvelteKit, Vite, and TypeScript dependencies and `"type": "module"`
+- [X] T011 [P] [US1] Install Tailwind CSS v4: Run `cd frontend && bun add -D tailwindcss postcss autoprefixer` (Tailwind v4 uses new import syntax)
+- [X] T012 [US1] Verify Tailwind files created: frontend/tailwind.config.js, frontend/postcss.config.js with v4 configuration
+- [X] T013 [US1] Confirm Tailwind content paths in frontend/tailwind.config.js scan `./src/**/*.{html,js,svelte,ts}`
+- [X] T014 [P] [US1] Verify frontend/src/app.css contains Tailwind v4 imports: `@import 'tailwindcss';` (v4 uses @import, not @tailwind directives)
+- [X] T015 [US1] Verify frontend/src/routes/+layout.svelte imports '../app.css' and includes `<slot />`
+- [X] T016 [P] [US1] Install Lucide Svelte icons: `bun add lucide-svelte` in frontend/
+- [X] T017 [US1] Initialize shadcn-svelte: Run `bunx shadcn-svelte@latest init` in frontend/, selecting Slate base color, confirming src/app.css path
+- [X] T018 [US1] Install test Button component: Run `bunx shadcn-svelte@latest add button` in frontend/ to verify shadcn-svelte setup
+- [X] T019 [US1] Update frontend/package.json scripts to include: `"dev": "vite dev --port 5173"`, `"build": "vite build"`, `"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"`
+- [X] T020 [US1] Run `bun check` in frontend/ to validate TypeScript configuration (should pass with no errors)
 - [ ] T009 [US1] Run `bun install` in frontend/ directory to install SvelteKit dependencies (if not done during project creation)
 - [ ] T010 [US1] Verify frontend/package.json created with SvelteKit, Vite, and TypeScript dependencies and `"type": "module"`
-- [ ] T011 [P] [US1] Install Tailwind CSS: Run `cd frontend && npx sv add tailwindcss` (this handles all Tailwind setup automatically)
-- [ ] T012 [US1] Verify Tailwind files created: frontend/tailwind.config.js, frontend/postcss.config.js, and Tailwind directives in app.css
-- [ ] T013 [US1] Confirm Tailwind content paths in frontend/tailwind.config.js scan `./src/**/*.{html,js,svelte,ts}`
-- [ ] T014 [P] [US1] Verify frontend/src/app.css contains Tailwind directives: `@tailwind base; @tailwind components; @tailwind utilities;`
+- [X] T011 [P] [US1] Install Tailwind CSS v4: Run `cd frontend && bun add -D tailwindcss postcss autoprefixer` (Tailwind v4 uses new import syntax)
+- [X] T012 [US1] Verify Tailwind files created: frontend/tailwind.config.js, frontend/postcss.config.js with v4 configuration
+- [X] T013 [US1] Confirm Tailwind content paths in frontend/tailwind.config.js scan `./src/**/*.{html,js,svelte,ts}`
+- [X] T014 [P] [US1] Verify frontend/src/app.css contains Tailwind v4 imports: `@import 'tailwindcss';` (v4 uses @import, not @tailwind directives)
 - [ ] T015 [US1] Verify frontend/src/routes/+layout.svelte imports '../app.css' and includes `<slot />`
 - [ ] T016 [P] [US1] Install Lucide Svelte icons: `bun add lucide-svelte` in frontend/
 - [ ] T017 [US1] Initialize shadcn-svelte: Run `bunx shadcn-svelte@latest init` in frontend/, selecting Slate base color, confirming src/app.css path
@@ -73,15 +85,15 @@ description: "Task list for monorepo initialization feature"
 
 ### Backend Setup (Go + Gin)
 
-- [ ] T021 [P] [US1] Create backend/ subdirectories: `mkdir -p backend/{handlers,middleware,tests}` from repo root
-- [ ] T022 [US1] Initialize Go module: `go mod init github.com/yourusername/web-scraper-backend` in backend/ (replace yourusername with actual GitHub username)
-- [ ] T023 [P] [US1] Install Gin framework: `go get -u github.com/gin-gonic/gin` in backend/
-- [ ] T024 [P] [US1] Install CORS middleware: `go get -u github.com/gin-contrib/cors` in backend/
-- [ ] T025 [P] [US1] Install Colly v2 scraping library: `go get -u github.com/gocolly/colly/v2` in backend/
-- [ ] T026 [P] [US1] Install Chromedp for browser automation: `go get -u github.com/chromedp/chromedp` in backend/
-- [ ] T027 [P] [US1] Install GoQuery for HTML parsing: `go get -u github.com/PuerkitoBio/goquery` in backend/
-- [ ] T028 [US1] Verify backend/go.mod includes all dependencies: Gin, CORS, Colly v2, Chromedp, GoQuery with proper versioning
-- [ ] T029 [US1] Run `go mod tidy` in backend/ to clean up dependencies and verify backend/go.sum generated with checksums
+- [X] T021 [P] [US1] Create backend/ subdirectories: `mkdir -p backend/{handlers,middleware,tests}` from repo root
+- [X] T022 [US1] Initialize Go module: `go mod init github.com/yourusername/web-scraper-backend` in backend/ (replace yourusername with actual GitHub username)
+- [X] T023 [P] [US1] Install Gin framework: `go get -u github.com/gin-gonic/gin` in backend/
+- [X] T024 [P] [US1] Install CORS middleware: `go get -u github.com/gin-contrib/cors` in backend/
+- [X] T025 [P] [US1] Install Colly v2 scraping library: `go get -u github.com/gocolly/colly/v2` in backend/
+- [X] T026 [P] [US1] Install Chromedp for browser automation: `go get -u github.com/chromedp/chromedp` in backend/
+- [X] T027 [P] [US1] Install GoQuery for HTML parsing: `go get -u github.com/PuerkitoBio/goquery` in backend/
+- [X] T028 [US1] Verify backend/go.mod includes all dependencies: Gin, CORS, Colly v2, Chromedp, GoQuery with proper versioning
+- [X] T029 [US1] Run `go mod tidy` in backend/ to clean up dependencies and verify backend/go.sum generated with checksums
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. Both directories exist with all dependencies installed.
 
@@ -95,26 +107,26 @@ description: "Task list for monorepo initialization feature"
 
 ### Backend Server Implementation
 
-- [ ] T030 [P] [US2] Create backend/main.go with package main, import statements for Gin and CORS
-- [ ] T031 [US2] Implement main() function in backend/main.go: initialize Gin router with `gin.Default()`
-- [ ] T032 [US2] Add CORS middleware config in backend/main.go: allow origin `http://localhost:5173`, methods GET/POST/PUT/DELETE, headers Content-Type/Authorization
-- [ ] T033 [US2] Apply CORS middleware to router using `router.Use(cors.New(config))` in backend/main.go
-- [ ] T034 [US2] Add startup logging in backend/main.go: `log.Println("Starting server on :8080")`
-- [ ] T035 [US2] Add server start command in backend/main.go: `router.Run(":8080")` with error handling
-- [ ] T036 [US2] Test backend startup: run `go run main.go` from backend/ and verify server starts without errors
+- [X] T030 [P] [US2] Create backend/main.go with package main, import statements for Gin and CORS
+- [X] T031 [US2] Implement main() function in backend/main.go: initialize Gin router with `gin.Default()`
+- [X] T032 [US2] Add CORS middleware config in backend/main.go: allow origin `http://localhost:5173`, methods GET/POST/PUT/DELETE, headers Content-Type/Authorization
+- [X] T033 [US2] Apply CORS middleware to router using `router.Use(cors.New(config))` in backend/main.go
+- [X] T034 [US2] Add startup logging in backend/main.go: `log.Println("Starting server on :8080")`
+- [X] T035 [US2] Add server start command in backend/main.go: `router.Run(":8080")` with error handling
+- [X] T036 [US2] Test backend startup: run `go run main.go` from backend/ and verify server starts without errors
 
 ### Frontend Development Server
 
-- [ ] T037 [P] [US2] Verify frontend/vite.config.ts exists and configures SvelteKit plugin
-- [ ] T038 [US2] Test frontend startup: run `bun dev` from frontend/ and verify dev server starts on port 5173
-- [ ] T039 [US2] Verify hot module replacement: make a change to frontend/src/routes/+page.svelte and confirm browser auto-reloads
-- [ ] T040 [US2] Update frontend/src/routes/+page.svelte with minimal content: heading "Web Scraper", paragraph with project description
+- [X] T037 [P] [US2] Verify frontend/vite.config.ts exists and configures SvelteKit plugin
+- [X] T038 [US2] Test frontend startup: run `bun dev` from frontend/ and verify dev server starts on port 5173
+- [X] T039 [US2] Verify hot module replacement: make a change to frontend/src/routes/+page.svelte and confirm browser auto-reloads
+- [X] T040 [US2] Update frontend/src/routes/+page.svelte with minimal content: heading "Web Scraper", paragraph with project description
 
 ### Concurrent Execution Validation
 
-- [ ] T041 [US2] Test concurrent execution: start backend with `go run main.go` in one terminal, start frontend with `bun dev` in another terminal
-- [ ] T042 [US2] Verify both services accessible: `http://localhost:5173` (frontend) and `http://localhost:8080` (backend logs confirm running)
-- [ ] T043 [US2] Document run commands in README.md: separate sections for starting frontend and backend
+- [X] T041 [US2] Test concurrent execution: start backend with `go run main.go` in one terminal, start frontend with `bun dev` in another terminal
+- [X] T042 [US2] Verify both services accessible: `http://localhost:5173` (frontend) and `http://localhost:8080` (backend logs confirm running)
+- [X] T043 [US2] Document run commands in README.md: separate sections for starting frontend and backend
 
 **Checkpoint**: Both services now start successfully and can run concurrently. Development workflow enabled.
 
@@ -128,34 +140,34 @@ description: "Task list for monorepo initialization feature"
 
 ### Backend Health Endpoint
 
-- [ ] T044 [P] [US3] Create backend/handlers/health.go with package handlers
-- [ ] T045 [US3] Implement HealthCheck handler in backend/handlers/health.go: return JSON with status="healthy", service="web-scraper-backend", timestamp=Unix time
-- [ ] T046 [US3] Register health route in backend/main.go: `router.GET("/health", handlers.HealthCheck)` before server start
-- [ ] T047 [US3] Test health endpoint directly: run `curl http://localhost:8080/health` and verify JSON response with correct fields
+- [X] T044 [P] [US3] Create backend/handlers/health.go with package handlers
+- [X] T045 [US3] Implement HealthCheck handler in backend/handlers/health.go: return JSON with status="healthy", service="web-scraper-backend", timestamp=Unix time
+- [X] T046 [US3] Register health route in backend/main.go: `router.GET("/health", handlers.HealthCheck)` before server start
+- [X] T047 [US3] Test health endpoint directly: run `curl http://localhost:8080/health` and verify JSON response with correct fields
 
 ### Backend Health Test (Smoke Test)
 
-- [ ] T048 [P] [US3] Create backend/tests/health_test.go with package tests
-- [ ] T049 [US3] Implement TestHealthCheck in backend/tests/health_test.go: use httptest to call /health handler, assert status 200, assert response body contains status="healthy"
-- [ ] T050 [US3] Run backend tests: `go test ./... -v` from backend/ directory and verify TestHealthCheck passes
+- [X] T048 [P] [US3] Create backend/tests/health_test.go with package tests
+- [X] T049 [US3] Implement TestHealthCheck in backend/tests/health_test.go: use httptest to call /health handler, assert status 200, assert response body contains status="healthy"
+- [X] T050 [US3] Run backend tests: `go test ./... -v` from backend/ directory and verify TestHealthCheck passes
 
 ### Frontend Health Proxy & UI
 
-- [ ] T051 [P] [US3] Create frontend/src/routes/health/ directory
-- [ ] T052 [US3] Create frontend/src/routes/health/+page.server.js with load function that fetches from `http://localhost:8080/health`
-- [ ] T053 [US3] Add error handling in +page.server.js load function: catch fetch failures, return `{health: null, error: "Backend service is not available"}`
-- [ ] T054 [P] [US3] Create frontend/src/routes/health/+page.svelte with script importing Check and X icons from lucide-svelte
-- [ ] T055 [US3] Add props destructuring in +page.svelte: `let { data } = $props();`
-- [ ] T056 [US3] Implement success UI in +page.svelte: green alert with Check icon showing backend health data (status, service, timestamp)
-- [ ] T057 [US3] Implement error UI in +page.svelte: red alert with X icon showing error message when backend unavailable
-- [ ] T058 [US3] Update frontend/src/routes/+page.svelte to import Button from '$lib/components/ui/button' and add link to /health route
+- [X] T051 [P] [US3] Create frontend/src/routes/health/ directory
+- [X] T052 [US3] Create frontend/src/routes/health/+page.server.js with load function that fetches from `http://localhost:8080/health`
+- [X] T053 [US3] Add error handling in +page.server.js load function: catch fetch failures, return `{health: null, error: "Backend service is not available"}`
+- [X] T054 [P] [US3] Create frontend/src/routes/health/+page.svelte with script importing Check and X icons from lucide-svelte
+- [X] T055 [US3] Add props destructuring in +page.svelte: `let { data } = $props();`
+- [X] T056 [US3] Implement success UI in +page.svelte: green alert with Check icon showing backend health data (status, service, timestamp)
+- [X] T057 [US3] Implement error UI in +page.svelte: red alert with X icon showing error message when backend unavailable
+- [X] T058 [US3] Update frontend/src/routes/+page.svelte to import Button from '$lib/components/ui/button' and add link to /health route
 
 ### End-to-End Integration Testing
 
-- [ ] T059 [US3] Test health proxy with backend running: access `http://localhost:5173/health` and verify green success message displays
-- [ ] T060 [US3] Test error handling: stop backend, refresh frontend /health page, verify red error message displays
-- [ ] T061 [US3] Verify no CORS errors: check browser console while accessing /health route - should show no CORS-related errors
-- [ ] T062 [US3] Test timestamp display: verify health page shows formatted timestamp (convert Unix epoch to readable date)
+- [X] T059 [US3] Test health proxy with backend running: access `http://localhost:5173/health` and verify green success message displays
+- [X] T060 [US3] Test error handling: stop backend, refresh frontend /health page, verify red error message displays
+- [X] T061 [US3] Verify no CORS errors: check browser console while accessing /health route - should show no CORS-related errors
+- [X] T062 [US3] Test timestamp display: verify health page shows formatted timestamp (convert Unix epoch to readable date)
 
 **Checkpoint**: Complete frontend-to-backend communication validated. Health check proves architectural pattern for all future API calls.
 
@@ -165,14 +177,14 @@ description: "Task list for monorepo initialization feature"
 
 **Purpose**: Documentation, final validation, and project cleanup
 
-- [ ] T063 [P] Create backend/README.md with: Go version requirement, dependency installation, run commands, test commands
-- [ ] T064 [P] Create frontend/README.md with: Bun version requirement, dependency installation, run commands, available scripts
-- [ ] T065 Update root README.md with: project overview, monorepo structure explanation, quick start guide referencing specs/001-monorepo-init/quickstart.md
-- [ ] T066 Run final validation: `bun check` in frontend/ (TypeScript validation)
-- [ ] T067 Run final validation: `go test ./... -v` in backend/ (smoke tests)
-- [ ] T068 Verify .gitignore excludes: node_modules/, bun.lockb, .svelte-kit/, dist/, go.sum (check with `git status`)
-- [ ] T069 Create backend/.env.example with PORT=8080 and ALLOWED_ORIGINS=http://localhost:5173
-- [ ] T070 Create frontend/.env.example with PUBLIC_BACKEND_URL=http://localhost:8080
+- [X] T063 [P] Create backend/README.md with: Go version requirement, dependency installation, run commands, test commands
+- [X] T064 [P] Create frontend/README.md with: Bun version requirement, dependency installation, run commands, available scripts
+- [X] T065 Update root README.md with: project overview, monorepo structure explanation, quick start guide referencing specs/001-monorepo-init/quickstart.md
+- [X] T066 Run final validation: `bun check` in frontend/ (TypeScript validation)
+- [X] T067 Run final validation: `go test ./... -v` in backend/ (smoke tests)
+- [X] T068 Verify .gitignore excludes: node_modules/, bun.lockb, .svelte-kit/, dist/, go.sum (check with `git status`)
+- [X] T069 Create backend/.env.example with PORT=8080 and ALLOWED_ORIGINS=http://localhost:5173
+- [X] T070 Create frontend/.env.example with PUBLIC_BACKEND_URL=http://localhost:8080
 - [ ] T071 Test complete workflow from scratch: follow quickstart.md steps and verify all commands execute successfully
 - [ ] T072 Commit all changes: `git add . && git commit -m "feat: initialize monorepo with SvelteKit and Go"`
 

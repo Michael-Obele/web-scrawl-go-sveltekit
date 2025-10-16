@@ -87,7 +87,7 @@ Follow-up TODOs: None
 
 - **Framework**: SvelteKit with Vite and Bun runtime
 - **Language**: TypeScript for type safety
-- **Styling**: Tailwind CSS utility classes
+- **Styling**: Tailwind CSS v4 (using modern `@import` syntax, not v3 `@tailwind` directives)
 - **Components**: shadcn-svelte (https://shadcn-svelte.com/) for accessible UI primitives (forms, tables, progress indicators, etc.)
 - **Icons**: Lucide Svelte for consistent iconography
 

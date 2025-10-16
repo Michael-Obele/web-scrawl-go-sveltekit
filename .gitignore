@@ -1,0 +1,39 @@
+# Node.js / Bun / JavaScript
+node_modules/
+bun.lockb
+dist/
+build/
+*.log
+.env
+.env.local
+.env.*.local
+
+# SvelteKit
+.svelte-kit/
+.vercel/
+.netlify/
+
+# Go
+go.sum
+*.exe
+*.test
+vendor/
+*.out
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+*.coverage
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
