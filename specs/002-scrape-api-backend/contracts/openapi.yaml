@@ -1,0 +1,69 @@
+openapi: 3.0.3
+info:
+  title: Scrape API
+  version: '0.1.0'
+paths:
+  /scrape:
+    get:
+      summary: Scrape a single URL and return structured result
+      parameters:
+        - name: url
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uri
+        - name: depth
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Successful scrape
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScrapeResult'
+        '400':
+          description: Bad request (invalid URL)
+        '403':
+          description: Disallowed by robots.txt
+        '504':
+          description: Timeout or rendering failure
+components:
+  schemas:
+    ScrapeResult:
+      type: object
+      properties:
+        title:
+          type: string
+        markdown:
+          type: string
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+        warnings:
+          type: array
+          items:
+            type: string
+        fetchedAt:
+          type: string
+          format: date-time
+      required:
+        - title
+        - markdown
+        - links
+        - fetchedAt
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+          format: uri
+        text:
+          type: string
+      required:
+        - href
