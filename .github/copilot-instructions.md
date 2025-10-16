@@ -35,9 +35,18 @@ specs/             # Feature specifications
 
 ## Code Style
 
-- **Frontend**: Svelte 5 runes ($state, $props, $derived), TypeScript strict mode, Tailwind CSS v4
+- **Frontend**: Svelte 5 runes ($state, $props, $derived), TypeScript MANDATORY (all `.svelte` files use `lang="ts"`, server routes use `.ts` extension), Tailwind CSS v4
 - **Backend**: Idiomatic Go, clear error handling, modular structure
 - **CSS**: Tailwind v4 uses `@import 'tailwindcss';` in app.css (not v3's `@tailwind` directives)
+
+## Svelte Development Workflow
+
+1. **Use Svelte MCP for Documentation**: Always use `mcp_svelte_*` tools to fetch official Svelte 5 and SvelteKit documentation
+2. **Validate Svelte Code**: ALWAYS run `mcp_svelte_svelte-autofixer` after writing/editing Svelte components to check for:
+   - Svelte 5 compatibility issues
+   - Incorrect runes usage
+   - Migration suggestions from Svelte 4 patterns
+3. **TypeScript Validation**: Run `bun check` after Svelte fixes to ensure TypeScript integrity
 
 ## Recent Changes
 

@@ -53,6 +53,14 @@ bun install
 
 ```bash
 # Still in frontend/ directory
+npx sv add tailwindcss
+
+# This command automatically:
+# - Installs tailwindcss, postcss, autoprefixer
+# - Creates tailwind.config.js and postcss.config.js
+# - Adds Tailwind directives to app.css
+# - Updates +layout.svelte to import app.css
+
 bun add -D tailwindcss postcss autoprefixer
 
 # Create Tailwind configuration (ES module format for v4)
@@ -63,11 +71,11 @@ bun add -D tailwindcss postcss autoprefixer
 ```javascript
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./src/**/*.{html,js,svelte,ts}'],
+  content: ["./src/**/*.{html,js,svelte,ts}"],
   theme: {
-    extend: {}
+    extend: {},
   },
-  plugins: []
+  plugins: [],
 };
 ```
 
@@ -77,15 +85,15 @@ export default {
 export default {
   plugins: {
     tailwindcss: {},
-    autoprefixer: {}
-  }
+    autoprefixer: {},
+  },
 };
 ```
 
 **Update `src/app.css`** with Tailwind v4 imports (NOT v3 directives):
 
 ```css
-@import 'tailwindcss';
+@import "tailwindcss";
 ```
 
 **Verify layout imports CSS** - Check `src/routes/+layout.svelte`:
@@ -199,7 +207,8 @@ go get -u github.com/PuerkitoBio/goquery
 go mod tidy
 ```
 
-**Expected output**: 
+**Expected output**:
+
 - Dependencies added to `go.mod` with version numbers
 - `go.sum` created with dependency checksums
 - `go mod tidy` removes unused dependencies and downloads missing ones
@@ -331,11 +340,12 @@ go run main.go
 
 ### 3.1 Create Server Route
 
-Create `frontend/src/routes/health/+page.server.js`:
+Create `frontend/src/routes/health/+page.server.ts`:
 
-```javascript
-/** @type {import('./$types').PageServerLoad} */
-export async function load({ fetch }) {
+```typescript
+import type { PageServerLoad } from "./$types";
+
+export const load: PageServerLoad = async ({ fetch }) => {
   try {
     const response = await fetch("http://localhost:8080/health");
     const data = await response.json();
@@ -346,7 +356,7 @@ export async function load({ fetch }) {
       error: "Backend service is not available",
     };
   }
-}
+};
 ```
 
 ### 3.2 Create Health Check Page
@@ -354,7 +364,7 @@ export async function load({ fetch }) {
 Create `frontend/src/routes/health/+page.svelte`:
 
 ```svelte
-<script>
+<script lang="ts">
 	import { Check, X } from 'lucide-svelte';
 
 	let { data } = $props();
@@ -389,7 +399,7 @@ Create `frontend/src/routes/health/+page.svelte`:
 Edit `frontend/src/routes/+page.svelte`:
 
 ```svelte
-<script>
+<script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 </script>
 
@@ -536,11 +546,11 @@ web-scraper/
 │   ├── bun.lockb                  # Lock file
 │   ├── src/
 │   │   ├── routes/
-│   │   │   ├── +page.svelte       # Home page
-│   │   │   ├── +layout.svelte     # Layout with CSS import
+│   │   │   ├── +page.svelte       # Home page (lang="ts")
+│   │   │   ├── +layout.svelte     # Layout with CSS import (lang="ts")
 │   │   │   └── health/
-│   │   │       ├── +page.svelte   # Health check UI
-│   │   │       └── +page.server.js # Proxy to backend
+│   │   │       ├── +page.svelte   # Health check UI (lang="ts")
+│   │   │       └── +page.server.ts # Proxy to backend (TypeScript)
 │   │   ├── lib/
 │   │   │   └── components/ui/     # shadcn-svelte components
 │   │   └── app.css                # Tailwind directives

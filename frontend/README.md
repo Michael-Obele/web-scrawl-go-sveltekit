@@ -51,11 +51,11 @@ frontend/
 │   ├── app.css              # Global styles with Tailwind v4
 │   ├── app.html             # HTML template
 │   ├── routes/              # File-based routing
-│   │   ├── +layout.svelte   # Root layout
-│   │   ├── +page.svelte     # Home page
+│   │   ├── +layout.svelte   # Root layout (lang="ts")
+│   │   ├── +page.svelte     # Home page (lang="ts")
 │   │   └── health/          # Health check page
-│   │       ├── +page.server.js  # Server-side proxy
-│   │       └── +page.svelte     # Health UI
+│   │       ├── +page.server.ts  # Server-side proxy (TypeScript)
+│   │       └── +page.svelte     # Health UI (lang="ts")
 │   └── lib/                 # Reusable components & utilities
 │       └── components/
 │           └── ui/          # shadcn-svelte components
@@ -84,7 +84,7 @@ This project uses **Tailwind CSS v4** with the modern syntax:
 
 ```css
 /* src/app.css */
-@import 'tailwindcss';
+@import "tailwindcss";
 ```
 
 **Note**: Do NOT use Tailwind v3 directives (`@tailwind base;`, `@tailwind components;`, `@tailwind utilities;`).
@@ -97,13 +97,13 @@ This project uses Svelte 5 with runes for reactivity:
 <script>
   // State
   let count = $state(0);
-  
+
   // Props
   let { title } = $props();
-  
+
   // Derived values
   let doubled = $derived(count * 2);
-  
+
   // Side effects
   $effect(() => {
     console.log('Count changed:', count);
@@ -118,15 +118,17 @@ This project uses Svelte 5 with runes for reactivity:
 
 ## Configuration
 
-The frontend connects to the backend via SvelteKit's server routes (+page.server.js):
+The frontend connects to the backend via SvelteKit's server routes (+page.server.ts):
 
-```javascript
-// Proxy pattern example
-export async function load({ fetch }) {
-  const response = await fetch('http://localhost:8080/health');
+```typescript
+// Proxy pattern example (TypeScript)
+import type { PageServerLoad } from "./$types";
+
+export const load: PageServerLoad = async ({ fetch }) => {
+  const response = await fetch("http://localhost:8080/health");
   const data = await response.json();
   return { health: data };
-}
+};
 ```
 
 ## Components
@@ -152,6 +154,7 @@ bun format
 ## Troubleshooting
 
 ### Port 5173 already in use
+
 ```bash
 # Kill process using port 5173
 kill $(lsof -ti:5173)
@@ -161,6 +164,7 @@ bun dev --port 3000
 ```
 
 ### Bun installation issues
+
 ```bash
 # Reinstall dependencies
 rm -rf node_modules bun.lockb
@@ -168,6 +172,7 @@ bun install
 ```
 
 ### TypeScript errors
+
 ```bash
 # Run type checking
 bun check
@@ -181,9 +186,10 @@ bun dev
 
 The frontend communicates with the Go backend (port 8080) via:
 
-1. **SvelteKit Server Routes**: +page.server.js files proxy API calls
+1. **SvelteKit Server Routes**: +page.server.ts files (TypeScript) proxy API calls
 2. **CORS**: Backend configured to allow localhost:5173
 3. **Error Handling**: All API calls include error handling and user-friendly messages
+4. **TypeScript**: All `.svelte` files use `lang="ts"` and server routes use `.ts` extension
 
 ## License
 

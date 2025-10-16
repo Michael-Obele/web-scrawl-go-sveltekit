@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { Check, X } from 'lucide-svelte';
 	
 	let { data } = $props();

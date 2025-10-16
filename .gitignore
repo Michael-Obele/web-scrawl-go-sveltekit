@@ -8,6 +8,9 @@ build/
 .env.local
 .env.*.local
 
+!.env.example
+!.env.test
+
 # SvelteKit
 .svelte-kit/
 .vercel/
