@@ -1,0 +1,104 @@
+openapi: 3.0.3
+info:
+  title: Web Scraper Backend API
+  description: |
+    Backend API for the web scraper application. This contract defines the health check endpoint
+    used to validate backend connectivity and establish the frontend-to-backend proxy pattern.
+  version: 1.0.0
+  contact:
+    name: Development Team
+    email: dev@example.com
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+  - url: https://api.production.example.com
+    description: Production server (placeholder - update with actual Render URL)
+
+tags:
+  - name: Health
+    description: Service health and monitoring endpoints
+
+paths:
+  /health:
+    get:
+      summary: Health Check
+      description: |
+        Returns the current health status of the backend service. This endpoint is used by:
+        - Frontend SvelteKit server routes to validate backend connectivity
+        - Monitoring tools (Docker, Kubernetes, uptime checkers)
+        - Developers to confirm the backend is running during development
+        
+        Always returns HTTP 200 when the service is operational. If the service is down,
+        this endpoint will not respond (network error or 5xx).
+      operationId: getHealth
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy and operational
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+              examples:
+                healthy:
+                  value:
+                    status: healthy
+                    service: web-scraper-backend
+                    timestamp: 1697462400
+        '500':
+          description: Service is unhealthy (should rarely occur; typically network failure)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unhealthy:
+                  value:
+                    error: Internal server error
+                    message: Service degraded
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      required:
+        - status
+        - service
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum:
+            - healthy
+            - unhealthy
+          description: Service operational state
+          example: healthy
+        service:
+          type: string
+          description: Service identifier for multi-service environments
+          example: web-scraper-backend
+          minLength: 1
+        timestamp:
+          type: integer
+          format: int64
+          description: Unix timestamp (seconds since epoch) of health check execution
+          example: 1697462400
+          minimum: 0
+    
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error type or code
+          example: Internal server error
+        message:
+          type: string
+          description: Human-readable error message
+          example: Service degraded
+
+security: []  # No authentication required for health check endpoint

@@ -86,10 +86,11 @@ Follow-up TODOs: None
 **Frontend (SvelteKit + TypeScript)**:
 
 - **Framework**: SvelteKit with Vite and Bun runtime
-- **Language**: TypeScript for type safety
-- **Styling**: Tailwind CSS utility classes
+- **Language**: TypeScript MANDATORY for all code (`.ts` for scripts, `.svelte` files with `lang="ts"`, `+page.server.ts` for server routes)
+- **Styling**: Tailwind CSS v4 (using modern `@import` syntax, not v3 `@tailwind` directives)
 - **Components**: shadcn-svelte (https://shadcn-svelte.com/) for accessible UI primitives (forms, tables, progress indicators, etc.)
 - **Icons**: Lucide Svelte for consistent iconography
+- **Svelte Validation**: ALWAYS use Svelte MCP (`mcp_svelte_*` tools) to fetch official documentation and run `svelte-autofixer` to check for Svelte 5 compatibility issues
 
 **Architecture**:
 
@@ -125,6 +126,7 @@ Follow-up TODOs: None
 
 - [ ] Constitution compliance verified (stack constraints, ethical practices)
 - [ ] SvelteKit: `bun check` passes without errors
+- [ ] Svelte Components: `svelte-autofixer` MCP tool run to check for Svelte 5 compatibility issues
 - [ ] Go: Core paths have smoke tests executing successfully
 - [ ] Architecture review confirms modularity and no over-engineering
 - [ ] User value clearly articulated in commit/PR description
