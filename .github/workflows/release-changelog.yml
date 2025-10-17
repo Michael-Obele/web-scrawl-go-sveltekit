@@ -1,0 +1,146 @@
+name: Release & auto-generate changelog
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    types: [labeled, unlabeled, opened, edited, synchronize]
+  workflow_dispatch: {}
+
+jobs:
+  release-changelog:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Exit if last commit by Actions (avoid loop)
+        id: check_actor
+        run: |
+          LAST_AUTHOR=$(git log -1 --pretty=format:'%an')
+          echo "Last commit author: $LAST_AUTHOR"
+          if echo "$LAST_AUTHOR" | grep -iq "github-actions"; then
+            echo "Last commit created by GitHub Actions; skipping to avoid loop."; exit 0;
+          fi
+
+      - name: Determine last tag
+        id: last_tag
+        run: |
+          git fetch --tags --quiet || true
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || true)
+          echo "LAST_TAG=$LAST_TAG" >> $GITHUB_OUTPUT
+
+      - name: Gather commit messages since last tag
+        id: commits
+        run: |
+          if [ -z "${{ steps.last_tag.outputs.LAST_TAG }}" ]; then
+            RANGE="HEAD"
+          else
+            RANGE="${{ steps.last_tag.outputs.LAST_TAG }}..HEAD"
+          fi
+          echo "Commit range: $RANGE"
+          # Exclude automated CHANGELOG commits
+          COMMITS_RAW=$(git log --pretty=format:'%s%n%b---END---' $RANGE | sed '/^chore: add initial CHANGELOG.md$/d')
+          # Extract subject lines (skip empty)
+          echo "COMMITS<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS_RAW" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Build changelog entries
+        id: build_changelog
+        run: |
+          # collect commit subjects and format
+          if [ -z "${{ steps.commits.outputs.COMMITS }}" ]; then
+            echo "No new commits to add to changelog."; NEW_ENTRIES="";
+          else
+            # Replace separators and build list
+            NEW_ENTRIES=$(echo "${{ steps.commits.outputs.COMMITS }}" | tr '\n' '|' | sed 's/---END---/|/g' | tr '|' '\n' | awk 'NF' | sed 's/^/- /')
+          fi
+          echo "NEW_ENTRIES<<EOF" >> $GITHUB_OUTPUT
+          echo "$NEW_ENTRIES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Ensure CHANGELOG.md exists
+        run: |
+          if [ ! -f CHANGELOG.md ]; then
+            echo "# Changelog" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            echo "## [Unreleased]" >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            git add CHANGELOG.md
+            git commit -m "chore: add initial CHANGELOG.md [ci skip]" || true
+          fi
+
+      - name: Prepend new entries to CHANGELOG.md
+        if: ${{ steps.build_changelog.outputs.NEW_ENTRIES != '' }}
+        run: |
+          echo "Prepending new changelog entries..."
+          # Insert entries under Unreleased header
+          awk -v newlines="${{ steps.build_changelog.outputs.NEW_ENTRIES }}" '
+            BEGIN{print_flag=1}
+            {print}
+          ' CHANGELOG.md > CHANGELOG.tmp
+          # Simple prepend: put Unreleased then newlines
+          awk -v entries="${{ steps.build_changelog.outputs.NEW_ENTRIES }}" '
+            {if ($0 ~ /^## \[Unreleased\]/ && !inserted) {print; print ""; print entries; inserted=1; next} print}
+          ' CHANGELOG.tmp > CHANGELOG.new || true
+          mv CHANGELOG.new CHANGELOG.md
+          git add CHANGELOG.md
+          git commit -m "chore: update CHANGELOG.md from commits [ci skip]" || echo "No changes to commit"
+
+      - name: Detect release marker
+        id: detect_release
+        run: |
+          VERSION=""
+          # If this run was triggered by a pull_request, inspect labels for release info
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "Inspecting PR labels..."
+            LABELS=$(jq -r '.pull_request.labels[]?.name' < "$GITHUB_EVENT_PATH" 2>/dev/null || true)
+            echo "Labels: $LABELS"
+            # Accept labels like: release: v1.2.3, release/v1.2.3, release-v1.2.3
+            for L in $LABELS; do
+              echo "Checking label: $L"
+              if echo "$L" | grep -Eiq 'release[:/\-]v?[0-9]+\.[0-9]+\.[0-9]+'; then
+                VERSION=$(echo "$L" | grep -oE 'v?[0-9]+\.[0-9]+\.[0-9]+' | sed 's/^v//') || true
+                break
+              fi
+            done
+          fi
+          # If not found on PR, fall back to commit messages (push runs)
+          if [ -z "$VERSION" ]; then
+            MSGS=$(git log -n 20 --pretty=format:'%B')
+            VERSION=$(echo "$MSGS" | grep -oE 'chore\(release\): v?[0-9]+\.[0-9]+\.[0-9]+' | head -n1 | sed -E 's/.*v?([0-9.]+)/\1/') || true
+            if [ -z "$VERSION" ]; then
+              VERSION=$(echo "$MSGS" | grep -oE 'release: v?[0-9]+\.[0-9]+\.[0-9]+' | head -n1 | sed -E 's/.*v?([0-9.]+)/\1/') || true
+            fi
+            if [ -z "$VERSION" ]; then
+              VERSION=$(echo "$MSGS" | grep -oE '\[release\] v?[0-9]+\.[0-9]+\.[0-9]+' | head -n1 | sed -E 's/.*v?([0-9.]+)/\1/') || true
+            fi
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: "Release: tag and finalize changelog"
+        if: ${{ steps.detect_release.outputs.VERSION != '' }}
+        run: |
+          VERSION=${{ steps.detect_release.outputs.VERSION }}
+          echo "Releasing version: $VERSION"
+          DATE=$(date +"%Y-%m-%d")
+          # replace Unreleased header with versioned header
+          sed -i "0,/## \[Unreleased\]/s/## \[Unreleased\]/## [$VERSION] - $DATE/" CHANGELOG.md
+          git add CHANGELOG.md
+          git commit -m "chore(release): $VERSION [ci skip]" || true
+          git tag -a "v$VERSION" -m "Release $VERSION" || true
+          git push origin HEAD --tags
+
+      - name: Push commits (if any)
+        run: |
+          git push origin HEAD || echo "Nothing to push"

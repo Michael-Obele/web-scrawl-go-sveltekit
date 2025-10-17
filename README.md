@@ -1,10 +1,20 @@
 # Web Scraper - SvelteKit & Go
 
+<!-- release-badge-start -->
+
+![Release](https://img.shields.io/badge/release-Unreleased-yellow)
+
+<!-- release-badge-end -->
+<!-- Example release badge (uncomment when you create release tags):
+![Release](https://img.shields.io/badge/release-v0.1.0-yellow)
+-->
+
 A modern web scraping application built with SvelteKit frontend and Go backend in a monorepo structure.
 
 ## Project Overview
 
 This project provides a full-stack web scraping solution:
+
 - **Frontend**: SvelteKit + TypeScript + Tailwind CSS + shadcn-svelte
 - **Backend**: Go + Gin + Colly + Chromedp + GoQuery
 - **Runtime**: Bun (frontend), Go (backend)
@@ -77,6 +87,7 @@ cd backend && go run main.go
 ## Contributing
 
 This project follows a specification-driven development workflow:
+
 1. Specifications are defined in `specs/`
 2. Implementation follows the task breakdown
 3. All changes are validated against constitutional principles
