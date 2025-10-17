@@ -11,6 +11,7 @@ type Link struct {
 // ScrapeResult represents the output from a scrape job
 type ScrapeResult struct {
 	Title     string    `json:"title"`              // Page title
+	RawHTML   string    `json:"rawHtml,omitempty"`  // Raw HTML content of the page
 	Markdown  string    `json:"markdown"`           // Main content converted to Markdown
 	Links     []Link    `json:"links"`              // Discovered links
 	Warnings  []string  `json:"warnings,omitempty"` // Optional warnings (robots.txt, fallback, etc.)

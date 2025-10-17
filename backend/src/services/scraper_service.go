@@ -84,6 +84,7 @@ func (s *ScraperService) Scrape(ctx context.Context, targetURL string, depth int
 
 	// Convert main content to markdown
 	result.Markdown = s.convertToMarkdown(doc)
+	result.RawHTML = html
 
 	return result, nil
 }
@@ -197,47 +198,9 @@ func (s *ScraperService) extractLinksFromHTML(html string, baseURL *url.URL, res
 func (s *ScraperService) convertToMarkdown(doc *goquery.Document) string {
 	var markdown strings.Builder
 
-	// Extract main content - try common content selectors
-	contentSelectors := []string{"main", "article", ".content", "#content", "body"}
-	var content *goquery.Selection
-
-	for _, selector := range contentSelectors {
-		content = doc.Find(selector).First()
-		if content.Length() > 0 {
-			break
-		}
-	}
-
-	if content.Length() == 0 {
-		content = doc.Find("body")
-	}
-
-	// Convert headings
-	content.Find("h1, h2, h3, h4, h5, h6").Each(func(i int, sel *goquery.Selection) {
-		level := sel.Nodes[0].Data[1] - '0' // Extract heading level from tag name
-		text := strings.TrimSpace(sel.Text())
-		if text != "" {
-			markdown.WriteString(strings.Repeat("#", int(level)) + " " + text + "\n\n")
-		}
-	})
-
-	// Convert paragraphs
-	content.Find("p").Each(func(i int, sel *goquery.Selection) {
-		text := strings.TrimSpace(sel.Text())
-		if text != "" {
-			markdown.WriteString(text + "\n\n")
-		}
-	})
-
-	// Convert lists
-	content.Find("ul, ol").Each(func(i int, sel *goquery.Selection) {
-		sel.Find("li").Each(func(j int, li *goquery.Selection) {
-			text := strings.TrimSpace(li.Text())
-			if text != "" {
-				markdown.WriteString("- " + text + "\n")
-			}
-		})
-		markdown.WriteString("\n")
+	// Process the entire body
+	doc.Find("body").Children().Each(func(i int, sel *goquery.Selection) {
+		s.nodeToMarkdown(sel, &markdown)
 	})
 
 	result := markdown.String()
@@ -247,4 +210,68 @@ func (s *ScraperService) convertToMarkdown(doc *goquery.Document) string {
 	}
 
 	return result
+}
+
+func (s *ScraperService) nodeToMarkdown(sel *goquery.Selection, markdown *strings.Builder) {
+	// Handle different node types
+	switch goquery.NodeName(sel) {
+	case "h1", "h2", "h3", "h4", "h5", "h6":
+		level := sel.Nodes[0].Data[1] - '0' // Extract heading level from tag name
+		text := strings.TrimSpace(sel.Text())
+		if text != "" {
+			markdown.WriteString(strings.Repeat("#", int(level)) + " " + text + "\n\n")
+		}
+	case "p":
+		text := strings.TrimSpace(sel.Text())
+		if text != "" {
+			markdown.WriteString(text + "\n\n")
+		}
+	case "ul", "ol":
+		sel.Find("li").Each(func(j int, li *goquery.Selection) {
+			text := strings.TrimSpace(li.Text())
+			if text != "" {
+				if goquery.NodeName(sel) == "ul" {
+					markdown.WriteString("- " + text + "\n")
+				} else {
+					markdown.WriteString(fmt.Sprintf("%d. %s\n", j+1, text))
+				}
+			}
+		})
+		markdown.WriteString("\n")
+	case "pre":
+		code := sel.Find("code")
+		lang := code.AttrOr("class", "")
+		lang = strings.TrimPrefix(lang, "language-")
+		markdown.WriteString(fmt.Sprintf("```%s\n%s\n```\n\n", lang, code.Text()))
+	case "code":
+		// Handle inline code if not in a pre block
+		if sel.Parent().Not("pre").Length() > 0 {
+			markdown.WriteString(fmt.Sprintf("`%s`", sel.Text()))
+		}
+	case "blockquote":
+		text := strings.TrimSpace(sel.Text())
+		lines := strings.Split(text, "\n")
+		for _, line := range lines {
+			markdown.WriteString("> " + line + "\n")
+		}
+		markdown.WriteString("\n")
+	case "img":
+		alt := sel.AttrOr("alt", "")
+		src := sel.AttrOr("src", "")
+		markdown.WriteString(fmt.Sprintf("![%s](%s)\n\n", alt, src))
+	case "a":
+		href := sel.AttrOr("href", "")
+		text := sel.Text()
+		markdown.WriteString(fmt.Sprintf("[%s](%s)", text, href))
+	default:
+		// For other block-level elements, just get the text
+		if goquery.IsBlock(sel.Nodes[0]) {
+			text := strings.TrimSpace(sel.Text())
+			if text != "" {
+				markdown.WriteString(text + "\n\n")
+			}
+		} else { // Inline elements
+			markdown.WriteString(sel.Text())
+		}
+	}
 }
