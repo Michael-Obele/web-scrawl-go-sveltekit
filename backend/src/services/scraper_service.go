@@ -16,14 +16,26 @@ import (
 
 // ScraperService handles web scraping operations
 type ScraperService struct {
-	config *config.Config
+	config      *config.Config
+	chromedpCtx context.Context
+	cancel      context.CancelFunc
 }
 
-// NewScraperService creates a new scraper service
+// NewScraperService creates a new scraper service and initializes a persistent Chromedp context
 func NewScraperService(cfg *config.Config) *ScraperService {
+	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), chromedp.DefaultExecAllocatorOptions[:]...)
+	chromedpCtx, _ := chromedp.NewContext(allocCtx)
+
 	return &ScraperService{
-		config: cfg,
+		config:      cfg,
+		chromedpCtx: chromedpCtx,
+		cancel:      cancel,
 	}
+}
+
+// Close cleans up the scraper service resources
+func (s *ScraperService) Close() {
+	s.cancel()
 }
 
 // Scrape performs a web scrape of the given URL with the specified depth
@@ -76,14 +88,14 @@ func (s *ScraperService) Scrape(ctx context.Context, targetURL string, depth int
 	return result, nil
 }
 
-// fetchWithChromedp attempts to fetch content using headless Chrome
+// fetchWithChromedp attempts to fetch content using the persistent headless Chrome instance
 func (s *ScraperService) fetchWithChromedp(ctx context.Context, targetURL string) (string, error) {
-	// Create Chrome context
-	allocCtx, cancel := chromedp.NewContext(ctx)
+	// Create a new tab from the persistent browser context
+	taskCtx, cancel := chromedp.NewContext(s.chromedpCtx)
 	defer cancel()
 
-	// Apply timeout
-	timeoutCtx, timeoutCancel := context.WithTimeout(allocCtx, s.config.GetChromedpTimeout())
+	// Apply timeout to the tab context
+	timeoutCtx, timeoutCancel := context.WithTimeout(taskCtx, s.config.GetChromedpTimeout())
 	defer timeoutCancel()
 
 	var html string
@@ -122,7 +134,7 @@ func (s *ScraperService) fetchWithColly(targetURL string, depth int, result *mod
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
 		link := e.Attr("href")
 		text := strings.TrimSpace(e.Text)
-		
+
 		// Resolve relative URLs
 		absURL := e.Request.AbsoluteURL(link)
 		if absURL != "" {
