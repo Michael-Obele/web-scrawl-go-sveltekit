@@ -33,11 +33,11 @@ Phase 3 — User Story 1 (P1) — Run a single-site scrape
 
 Phase 4 — User Story 2 (P2) — UI trigger & results
 
-- [ ] T016 [US2] Add SvelteKit route `frontend/src/routes/scrape/+page.server.ts` that proxies POST/GET to backend `/scrape` on server-side - `frontend/src/routes/scrape/+page.server.ts`
-- [ ] T017 [US2] Add minimal UI page `frontend/src/routes/scrape/+page.svelte` with shadcn-svelte form for URL input and a submit button - `frontend/src/routes/scrape/+page.svelte`
-- [ ] T018 [US2] Add progress indicator component and wiring to show in-progress state during scrape - `frontend/src/lib/components/Progress.svelte`
-- [ ] T019 [US2] Render ScrapeResult: markdown area and links table (use shadcn-svelte table) - `frontend/src/routes/scrape/+page.svelte`
-- [ ] T020 [US2] Ensure TypeScript types for ScrapeResult in `frontend/src/lib/types/scraper.ts` (matching backend contract) - `frontend/src/lib/types/scraper.ts`
+- [x] T016 [US2] Add SvelteKit route `frontend/src/routes/scrape/+page.server.ts` that proxies POST/GET to backend `/scrape` on server-side - `frontend/src/routes/scrape/+page.server.ts`
+- [x] T017 [US2] Add minimal UI page `frontend/src/routes/scrape/+page.svelte` with shadcn-svelte form for URL input and a submit button - `frontend/src/routes/scrape/+page.svelte`
+- [x] T018 [US2] Add progress indicator component and wiring to show in-progress state during scrape - `frontend/src/lib/components/Progress.svelte`
+- [x] T019 [US2] Render ScrapeResult: markdown area and links table (use shadcn-svelte table) - `frontend/src/routes/scrape/+page.svelte`
+- [x] T020 [US2] Ensure TypeScript types for ScrapeResult in `frontend/src/lib/types/scraper.ts` (matching backend contract) - `frontend/src/lib/types/scraper.ts`
 
 Phase 5 — User Story 3 (P3) — Ethical scraping controls
 
@@ -51,7 +51,7 @@ Phase 6 — Polish & Cross-cutting concerns
 - [ ] T025 Add README / quickstart usage to `specs/002-scrape-api-backend/quickstart.md` (update with observed commands) - `specs/002-scrape-api-backend/quickstart.md`
 - [ ] T026 Add logging, graceful shutdown, and context cancellation to server and scraper (no story) - `backend/main.go`, `backend/src/services/scraper_service.go`
 - [ ] T027 Add documentation comment blocks for public functions and types in backend (no story) - `backend/src/**.go`
-- [ ] T028 Ensure frontend `bun check` passes and run Svelte MCP autofixer if issues (no story) - `frontend/` (CI step)
+- [x] T028 Ensure frontend `bun check` passes and run Svelte MCP autofixer if issues (no story) - `frontend/` (CI step)
 
 Dependencies (story completion order)
 
