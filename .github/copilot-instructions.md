@@ -3,6 +3,8 @@
 Auto-generated from all feature plans. Last updated: 2025-10-16
 
 ## Active Technologies
+- Go 1.21+ (backend); SvelteKit (Svelte 5) + TypeScript (frontend) + Gin (HTTP server), Colly (crawler), Chromedp (headless rendering), GoQuery (parsing), shadcn-svelte (frontend UI), Tailwind CSS v4 (002-scrape-api-backend)
+- N/A for MVP — in-memory response only; no persistent storage (002-scrape-api-backend)
 
 - SvelteKit (latest) with Svelte 5 runes
 - Bun 1.0+ (package manager and runtime)
@@ -49,6 +51,7 @@ specs/             # Feature specifications
 3. **TypeScript Validation**: Run `bun check` after Svelte fixes to ensure TypeScript integrity
 
 ## Recent Changes
+- 002-scrape-api-backend: Added Go 1.21+ (backend); SvelteKit (Svelte 5) + TypeScript (frontend) + Gin (HTTP server), Colly (crawler), Chromedp (headless rendering), GoQuery (parsing), shadcn-svelte (frontend UI), Tailwind CSS v4
 
 - 001-monorepo-init: Added
 
