@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/url"
 	"strings"
 	"time"
@@ -23,7 +24,15 @@ type ScraperService struct {
 
 // NewScraperService creates a new scraper service and initializes a persistent Chromedp context
 func NewScraperService(cfg *config.Config) *ScraperService {
-	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), chromedp.DefaultExecAllocatorOptions[:]...)
+	opts := append(chromedp.DefaultExecAllocatorOptions[:],
+		chromedp.DisableGPU,
+		chromedp.NoDefaultBrowserCheck,
+		chromedp.Flag("disable-background-timer-throttling", false),
+		chromedp.Flag("disable-backgrounding-occluded-windows", false),
+		chromedp.Flag("disable-renderer-backgrounding", false),
+		chromedp.UserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"),
+	)
+	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
 	chromedpCtx, _ := chromedp.NewContext(allocCtx)
 
 	return &ScraperService{
@@ -59,15 +68,21 @@ func (s *ScraperService) Scrape(ctx context.Context, targetURL string, depth int
 	// Try to fetch with Chromedp for JS-rendered content first
 	html, err := s.fetchWithChromedp(timeoutCtx, targetURL)
 	if err != nil {
+		log.Printf("Chromedp failed for %s: %v", targetURL, err)
 		// Fallback to Colly if Chromedp fails
 		result.Warnings = append(result.Warnings, fmt.Sprintf("Chromedp failed (%v), falling back to static fetch", err))
 		html, err = s.fetchWithColly(targetURL, depth, result)
 		if err != nil {
+			log.Printf("Colly also failed for %s: %v", targetURL, err)
 			return nil, fmt.Errorf("scraping failed: %w", err)
 		}
 	} else {
 		// Extract links from the Chromedp-rendered HTML
 		s.extractLinksFromHTML(html, parsedURL, result)
+	}
+	if html == "" {
+		log.Printf("Warning: Empty HTML captured for %s", targetURL)
+		result.Warnings = append(result.Warnings, "Captured HTML was empty")
 	}
 
 	// Parse HTML and extract content
@@ -103,6 +118,8 @@ func (s *ScraperService) fetchWithChromedp(ctx context.Context, targetURL string
 	err := chromedp.Run(timeoutCtx,
 		chromedp.Navigate(targetURL),
 		chromedp.WaitReady("body"),
+		chromedp.WaitVisible("body", chromedp.ByQuery),
+		chromedp.Sleep(2*time.Second),
 		chromedp.OuterHTML("html", &html),
 	)
 
@@ -265,7 +282,7 @@ func (s *ScraperService) nodeToMarkdown(sel *goquery.Selection, markdown *string
 		markdown.WriteString(fmt.Sprintf("[%s](%s)", text, href))
 	default:
 		// For other block-level elements, just get the text
-		if goquery.IsBlock(sel.Nodes[0]) {
+		if isBlockElement(goquery.NodeName(sel)) {
 			text := strings.TrimSpace(sel.Text())
 			if text != "" {
 				markdown.WriteString(text + "\n\n")
@@ -274,4 +291,44 @@ func (s *ScraperService) nodeToMarkdown(sel *goquery.Selection, markdown *string
 			markdown.WriteString(sel.Text())
 		}
 	}
+}
+
+func isBlockElement(tag string) bool {
+	blockTags := map[string]bool{
+		"address":    true,
+		"article":    true,
+		"aside":      true,
+		"blockquote": true,
+		"canvas":     true,
+		"dd":         true,
+		"div":        true,
+		"dl":         true,
+		"dt":         true,
+		"fieldset":   true,
+		"figcaption": true,
+		"figure":     true,
+		"footer":     true,
+		"form":       true,
+		"h1":         true,
+		"h2":         true,
+		"h3":         true,
+		"h4":         true,
+		"h5":         true,
+		"h6":         true,
+		"header":     true,
+		"hr":         true,
+		"li":         true,
+		"main":       true,
+		"nav":        true,
+		"noscript":   true,
+		"ol":         true,
+		"p":          true,
+		"pre":        true,
+		"section":    true,
+		"table":      true,
+		"tfoot":      true,
+		"ul":         true,
+		"video":      true,
+	}
+	return blockTags[tag]
 }
