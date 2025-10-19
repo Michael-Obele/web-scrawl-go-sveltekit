@@ -3,7 +3,8 @@ import type { PageServerLoad } from "./$types";
 export const load: PageServerLoad = async ({ fetch }) => {
   const startTime = Date.now();
   try {
-    const response = await fetch("http://localhost:8080/health");
+    const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
+    const response = await fetch(`${baseUrl}/health`);
     const duration = Date.now() - startTime;
 
     if (!response.ok) {

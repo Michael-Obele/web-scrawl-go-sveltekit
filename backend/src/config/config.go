@@ -23,9 +23,9 @@ type Config struct {
 // Load reads configuration from environment variables with sensible defaults
 func Load() *Config {
 	return &Config{
-		ServerPort:             getEnv("SERVER_PORT", "8080"),
-		ScraperDelaySeconds:    getEnvAsInt("SCRAPER_DELAY_S", 2),
-		ScraperUserAgents:      getEnvAsSlice("SCRAPER_USER_AGENTS", []string{
+		ServerPort:          getEnv("PORT", "8080"),
+		ScraperDelaySeconds: getEnvAsInt("SCRAPER_DELAY_S", 2),
+		ScraperUserAgents: getEnvAsSlice("SCRAPER_USER_AGENTS", []string{
 			"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
 			"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
 			"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",

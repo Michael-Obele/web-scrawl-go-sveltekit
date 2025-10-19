@@ -9,14 +9,14 @@ const ScrapeInputSchema = v.object({
   url: v.pipe(
     v.string(),
     v.nonEmpty("URL is required"),
-    v.url("Please enter a valid URL")
+    v.url("Please enter a valid URL"),
   ),
   depth: v.pipe(
     v.string(),
     v.transform(Number),
     v.number(),
     v.minValue(1, "Depth must be at least 1"),
-    v.maxValue(3, "Depth cannot exceed 3")
+    v.maxValue(3, "Depth cannot exceed 3"),
   ),
 });
 
@@ -27,8 +27,9 @@ const ScrapeInputSchema = v.object({
  */
 export const scrapeWebsite = form(ScrapeInputSchema, async (data) => {
   // Call the backend API
-  const apiUrl = `http://localhost:8080/scrape?url=${encodeURIComponent(
-    data.url
+  const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
+  const apiUrl = `${baseUrl}/scrape?url=${encodeURIComponent(
+    data.url,
   )}&depth=${data.depth}`;
 
   const response = await fetch(apiUrl, {
@@ -47,11 +48,11 @@ export const scrapeWebsite = form(ScrapeInputSchema, async (data) => {
   console.log(
     "📡 Backend response status:",
     response.status,
-    response.statusText
+    response.statusText,
   );
   console.log(
     "📡 Backend response headers:",
-    Object.fromEntries(response.headers.entries())
+    Object.fromEntries(response.headers.entries()),
   );
 
   const responseText = await response.text();
