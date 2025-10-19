@@ -53,12 +53,19 @@ frontend/
 │   ├── routes/              # File-based routing
 │   │   ├── +layout.svelte   # Root layout (lang="ts")
 │   │   ├── +page.svelte     # Home page (lang="ts")
-│   │   └── health/          # Health check page
-│   │       ├── +page.server.ts  # Server-side proxy (TypeScript)
-│   │       └── +page.svelte     # Health UI (lang="ts")
+│   │   ├── health/          # Health check page
+│   │   │   ├── +page.server.ts  # Server-side proxy (TypeScript)
+│   │   │   └── +page.svelte     # Health UI (lang="ts")
+│   │   └── scrape/          # Web scraping interface
+│   │       └── +page.svelte     # Scrape form and results (lang="ts")
 │   └── lib/                 # Reusable components & utilities
-│       └── components/
-│           └── ui/          # shadcn-svelte components
+│       ├── components/
+│       │   └── ui/          # shadcn-svelte components
+│       ├── remote/          # Remote functions for API calls
+│       │   ├── index.ts     # Remote function exports
+│       │   └── scraper.remote.ts  # Scraper API integration
+│       └── types/           # TypeScript type definitions
+│           └── scraper.ts   # Scraper data types
 ├── static/                  # Static assets
 ├── tailwind.config.js       # Tailwind v4 configuration
 ├── postcss.config.js        # PostCSS configuration
@@ -77,6 +84,7 @@ frontend/
 - **shadcn-svelte**: UI component library
 - **Lucide Svelte**: Icon library
 - **Vite**: 7.x (build tool)
+- **Valibot**: Form validation library
 
 ## Tailwind CSS v4
 
@@ -113,22 +121,39 @@ This project uses Svelte 5 with runes for reactivity:
 
 ## Available Routes
 
-- `/` - Home page
+- `/` - Home page with project overview
 - `/health` - Backend health check status
+- `/scrape` - Web scraping interface with form and results
 
-## Configuration
+## Remote Functions Architecture
 
-The frontend connects to the backend via SvelteKit's server routes (+page.server.ts):
+The frontend uses SvelteKit's remote functions for type-safe API communication:
 
 ```typescript
-// Proxy pattern example (TypeScript)
-import type { PageServerLoad } from "./$types";
+// src/lib/remote/scraper.remote.ts
+import { form } from "$app/server";
+import * as v from "valibot";
 
-export const load: PageServerLoad = async ({ fetch }) => {
-  const response = await fetch("http://localhost:8080/health");
-  const data = await response.json();
-  return { health: data };
-};
+const ScrapeInputSchema = v.object({
+  url: v.pipe(
+    v.string(),
+    v.nonEmpty("URL is required"),
+    v.url("Please enter a valid URL")
+  ),
+  depth: v.pipe(
+    v.string(),
+    v.transform(Number),
+    v.number(),
+    v.minValue(1, "Depth must be at least 1"),
+    v.maxValue(3, "Depth cannot exceed 3")
+  ),
+});
+
+export const scrapeWebsite = form(ScrapeInputSchema, async (data) => {
+  const response = await fetch(`http://localhost:8080/scrape?url=${encodeURIComponent(data.url)}&depth=${data.depth}`);
+  const result = await response.json();
+  return { success: true, final: result, ...data };
+});
 ```
 
 ## Components
@@ -139,6 +164,32 @@ UI components from shadcn-svelte are located in `src/lib/components/ui/`:
 # Add new components
 bunx shadcn-svelte@latest add button
 bunx shadcn-svelte@latest add card
+bunx shadcn-svelte@latest add table
+bunx shadcn-svelte@latest add tabs
+```
+
+## Web Scraping Features
+
+The `/scrape` route provides:
+
+- **URL Input**: Form validation for website URLs
+- **Depth Control**: Configurable crawl depth (1-3)
+- **Progress Indicators**: Visual feedback during scraping
+- **Results Display**: Tabbed interface showing:
+  - Markdown content
+  - Raw HTML
+  - Links table
+- **Error Handling**: User-friendly error messages
+- **Responsive Design**: Mobile-friendly interface
+
+## Configuration
+
+The frontend connects to the backend via remote functions:
+
+```typescript
+// Progressive enhancement - works without JavaScript
+// Server-side rendering with form actions
+// Type-safe API calls with validation
 ```
 
 ## Linting & Formatting
@@ -182,14 +233,28 @@ rm -rf .svelte-kit
 bun dev
 ```
 
+### Scraper not working
+
+```bash
+# Ensure backend is running on port 8080
+cd ../backend && go run main.go
+
+# Check backend health
+curl http://localhost:8080/health
+
+# Test scraper API
+curl "http://localhost:8080/scrape?url=https://example.com&depth=1"
+```
+
 ## Backend Integration
 
 The frontend communicates with the Go backend (port 8080) via:
 
-1. **SvelteKit Server Routes**: +page.server.ts files (TypeScript) proxy API calls
-2. **CORS**: Backend configured to allow localhost:5173
-3. **Error Handling**: All API calls include error handling and user-friendly messages
-4. **TypeScript**: All `.svelte` files use `lang="ts"` and server routes use `.ts` extension
+1. **Remote Functions**: Type-safe server-side API calls
+2. **Progressive Enhancement**: Works without JavaScript
+3. **CORS**: Backend configured to allow localhost:5173
+4. **Error Handling**: Comprehensive error handling and validation
+5. **TypeScript**: Strict typing throughout the application
 
 ## License
 
