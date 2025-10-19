@@ -4,6 +4,196 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+- Enhance scraper rendering, logging, and parsing
+- - Always include RawHTML in scrape results
+- - Add Chromedp allocator options (disable GPU, UA and flags), wait for
+-   visibility and a short sleep to improve JS rendering
+- - Log Chromedp/Colly failures and warn on empty captured HTML
+- - Replace goquery.IsBlock usage with isBlockElement helper for Markdown
+-   output
+- chore: update CHANGELOG.md from commits [ci skip]
+- feat: enhance scraper UI with tabs for displaying markdown, raw HTML, and links; add duration to health check response
+- feat: add RawHTML field to ScrapeResult and update scraping logic to include raw HTML content
+- feat: add tabs component with content, list, and trigger subcomponents
+- chore: update CHANGELOG.md from commits [ci skip]
+- Merge pull request #4 from Michael-Obele/002-scrape-api-backend
+- feat: consolidate complete web scraping functionality into master branch
+- - Merge all web scraping features from 002-scrape-api-backend
+- - Add Go backend with Gin framework and scraping services
+- - Implement SvelteKit 5 frontend with runes-based reactivity
+- - Add form validation and progressive enhancement
+- - Include comprehensive error handling and logging
+- - Add UI components and styling with Tailwind CSS v4
+- - Implement API contracts and documentation
+- - Consolidate all development work into master branch
+- feat: implement web scraping functionality with input validation and results display
+- feat: add card component structure with header, footer, content, title, description, and action slots
+- feat: implement graceful shutdown for HTTP server and enhance ScraperService with persistent context
+- Add documentation for form pending state management and frontend improvements
+- - Introduced FORM_PENDING_STATE.md detailing the management of the  state in SvelteKit forms.
+- - Added FORM_PROGRESSIVE_ENHANCEMENT.md to document the migration from query-based to form-based remote functions.
+- - Created FRONTEND_IMPROVEMENTS.md outlining UI/UX enhancements and fixes for loading states and markdown display.
+- - Documented the migration to remote functions in REMOTE_FUNCTIONS_MIGRATION.md, highlighting benefits and implementation details.
+- - Updated tasks.md to reflect completion of frontend validation and improvements.
+- Add GEMINI.md and update frontend deps
+- feat: add UI components for input, label, progress, and table with Svelte
+- feat: implement /scrape API with configuration, scraping logic, and error handling
+- feat: add initial implementation of /scrape API with Go backend and SvelteKit frontend
+- chore: update CHANGELOG.md from commits [ci skip]
+- chore: add release changelog workflow and update README with release badge
+- chore(ci): add README release badge and changelog dry-run script
+- chore: add changelog verification workflow to ensure CHANGELOG.md updates
+- refactor: update package.json and app.css for improved Tailwind CSS integration; enhance task list formatting in tasks.md
+- Merge PR #2: enforce TypeScript & Svelte MCP
+- Merging feature branch 001-monorepo-init which enforces TypeScript across frontend and adds Svelte MCP validation policies.
+- refactor: enforce TypeScript across frontend and add Svelte MCP validation
+- - Convert server routes from .js to .ts (+page.server.ts)
+- - Add lang=ts to all .svelte files
+- - Update constitution to mandate TypeScript usage
+- - Add Svelte MCP documentation and autofixer requirements
+- - Update copilot instructions with Svelte validation workflow
+- - Update all documentation (README, quickstart) to reflect TypeScript
+- TypeScript validation: bun check passes (0 errors)
+- Svelte validation: svelte-autofixer passes (0 issues)
+- docs: mark all 72 tasks as complete
+- feat: initialize monorepo with SvelteKit and Go
+- - Setup SvelteKit frontend with Svelte 5 runes, TypeScript, Tailwind v4
+- - Setup Go backend with Gin, CORS, and web scraping dependencies
+- - Implement health check endpoint with frontend-to-backend integration
+- - Add comprehensive documentation (README files, quickstart guide)
+- - Configure environment with .env.example files
+- - Establish development workflow and testing infrastructure
+- All 72 tasks complete per specs/001-monorepo-init/tasks.md
+- feat: update quickstart and research documentation for SvelteKit and Go setup; add task list for monorepo initialization
+- feat: initialize monorepo structure with frontend and backend services
+- - Added implementation plan for monorepo initialization (plan.md)
+- - Created quickstart guide for setting up the web scraper project (quickstart.md)
+- - Documented research findings and decisions for project setup (research.md)
+- Merge pull request #1 from Michael-Obele/master
+- Add initial constitution and specification quality checklist for mono…
+- Add initial constitution and specification quality checklist for monorepo setup
+- Initial commit from Specify template
+
+- feat: enhance scraper UI with tabs for displaying markdown, raw HTML, and links; add duration to health check response
+- feat: add RawHTML field to ScrapeResult and update scraping logic to include raw HTML content
+- feat: add tabs component with content, list, and trigger subcomponents
+- chore: update CHANGELOG.md from commits [ci skip]
+- Merge pull request #4 from Michael-Obele/002-scrape-api-backend
+- feat: consolidate complete web scraping functionality into master branch
+- - Merge all web scraping features from 002-scrape-api-backend
+- - Add Go backend with Gin framework and scraping services
+- - Implement SvelteKit 5 frontend with runes-based reactivity
+- - Add form validation and progressive enhancement
+- - Include comprehensive error handling and logging
+- - Add UI components and styling with Tailwind CSS v4
+- - Implement API contracts and documentation
+- - Consolidate all development work into master branch
+- feat: implement web scraping functionality with input validation and results display
+- feat: add card component structure with header, footer, content, title, description, and action slots
+- feat: implement graceful shutdown for HTTP server and enhance ScraperService with persistent context
+- Add documentation for form pending state management and frontend improvements
+- - Introduced FORM_PENDING_STATE.md detailing the management of the  state in SvelteKit forms.
+- - Added FORM_PROGRESSIVE_ENHANCEMENT.md to document the migration from query-based to form-based remote functions.
+- - Created FRONTEND_IMPROVEMENTS.md outlining UI/UX enhancements and fixes for loading states and markdown display.
+- - Documented the migration to remote functions in REMOTE_FUNCTIONS_MIGRATION.md, highlighting benefits and implementation details.
+- - Updated tasks.md to reflect completion of frontend validation and improvements.
+- Add GEMINI.md and update frontend deps
+- feat: add UI components for input, label, progress, and table with Svelte
+- feat: implement /scrape API with configuration, scraping logic, and error handling
+- feat: add initial implementation of /scrape API with Go backend and SvelteKit frontend
+- chore: update CHANGELOG.md from commits [ci skip]
+- chore: add release changelog workflow and update README with release badge
+- chore(ci): add README release badge and changelog dry-run script
+- chore: add changelog verification workflow to ensure CHANGELOG.md updates
+- refactor: update package.json and app.css for improved Tailwind CSS integration; enhance task list formatting in tasks.md
+- Merge PR #2: enforce TypeScript & Svelte MCP
+- Merging feature branch 001-monorepo-init which enforces TypeScript across frontend and adds Svelte MCP validation policies.
+- refactor: enforce TypeScript across frontend and add Svelte MCP validation
+- - Convert server routes from .js to .ts (+page.server.ts)
+- - Add lang=ts to all .svelte files
+- - Update constitution to mandate TypeScript usage
+- - Add Svelte MCP documentation and autofixer requirements
+- - Update copilot instructions with Svelte validation workflow
+- - Update all documentation (README, quickstart) to reflect TypeScript
+- TypeScript validation: bun check passes (0 errors)
+- Svelte validation: svelte-autofixer passes (0 issues)
+- docs: mark all 72 tasks as complete
+- feat: initialize monorepo with SvelteKit and Go
+- - Setup SvelteKit frontend with Svelte 5 runes, TypeScript, Tailwind v4
+- - Setup Go backend with Gin, CORS, and web scraping dependencies
+- - Implement health check endpoint with frontend-to-backend integration
+- - Add comprehensive documentation (README files, quickstart guide)
+- - Configure environment with .env.example files
+- - Establish development workflow and testing infrastructure
+- All 72 tasks complete per specs/001-monorepo-init/tasks.md
+- feat: update quickstart and research documentation for SvelteKit and Go setup; add task list for monorepo initialization
+- feat: initialize monorepo structure with frontend and backend services
+- - Added implementation plan for monorepo initialization (plan.md)
+- - Created quickstart guide for setting up the web scraper project (quickstart.md)
+- - Documented research findings and decisions for project setup (research.md)
+- Merge pull request #1 from Michael-Obele/master
+- Add initial constitution and specification quality checklist for mono…
+- Add initial constitution and specification quality checklist for monorepo setup
+- Initial commit from Specify template
+
+- Merge pull request #4 from Michael-Obele/002-scrape-api-backend
+- feat: consolidate complete web scraping functionality into master branch
+- - Merge all web scraping features from 002-scrape-api-backend
+- - Add Go backend with Gin framework and scraping services
+- - Implement SvelteKit 5 frontend with runes-based reactivity
+- - Add form validation and progressive enhancement
+- - Include comprehensive error handling and logging
+- - Add UI components and styling with Tailwind CSS v4
+- - Implement API contracts and documentation
+- - Consolidate all development work into master branch
+- feat: implement web scraping functionality with input validation and results display
+- feat: add card component structure with header, footer, content, title, description, and action slots
+- feat: implement graceful shutdown for HTTP server and enhance ScraperService with persistent context
+- Add documentation for form pending state management and frontend improvements
+- - Introduced FORM_PENDING_STATE.md detailing the management of the  state in SvelteKit forms.
+- - Added FORM_PROGRESSIVE_ENHANCEMENT.md to document the migration from query-based to form-based remote functions.
+- - Created FRONTEND_IMPROVEMENTS.md outlining UI/UX enhancements and fixes for loading states and markdown display.
+- - Documented the migration to remote functions in REMOTE_FUNCTIONS_MIGRATION.md, highlighting benefits and implementation details.
+- - Updated tasks.md to reflect completion of frontend validation and improvements.
+- Add GEMINI.md and update frontend deps
+- feat: add UI components for input, label, progress, and table with Svelte
+- feat: implement /scrape API with configuration, scraping logic, and error handling
+- feat: add initial implementation of /scrape API with Go backend and SvelteKit frontend
+- chore: update CHANGELOG.md from commits [ci skip]
+- chore: add release changelog workflow and update README with release badge
+- chore(ci): add README release badge and changelog dry-run script
+- chore: add changelog verification workflow to ensure CHANGELOG.md updates
+- refactor: update package.json and app.css for improved Tailwind CSS integration; enhance task list formatting in tasks.md
+- Merge PR #2: enforce TypeScript & Svelte MCP
+- Merging feature branch 001-monorepo-init which enforces TypeScript across frontend and adds Svelte MCP validation policies.
+- refactor: enforce TypeScript across frontend and add Svelte MCP validation
+- - Convert server routes from .js to .ts (+page.server.ts)
+- - Add lang=ts to all .svelte files
+- - Update constitution to mandate TypeScript usage
+- - Add Svelte MCP documentation and autofixer requirements
+- - Update copilot instructions with Svelte validation workflow
+- - Update all documentation (README, quickstart) to reflect TypeScript
+- TypeScript validation: bun check passes (0 errors)
+- Svelte validation: svelte-autofixer passes (0 issues)
+- docs: mark all 72 tasks as complete
+- feat: initialize monorepo with SvelteKit and Go
+- - Setup SvelteKit frontend with Svelte 5 runes, TypeScript, Tailwind v4
+- - Setup Go backend with Gin, CORS, and web scraping dependencies
+- - Implement health check endpoint with frontend-to-backend integration
+- - Add comprehensive documentation (README files, quickstart guide)
+- - Configure environment with .env.example files
+- - Establish development workflow and testing infrastructure
+- All 72 tasks complete per specs/001-monorepo-init/tasks.md
+- feat: update quickstart and research documentation for SvelteKit and Go setup; add task list for monorepo initialization
+- feat: initialize monorepo structure with frontend and backend services
+- - Added implementation plan for monorepo initialization (plan.md)
+- - Created quickstart guide for setting up the web scraper project (quickstart.md)
+- - Documented research findings and decisions for project setup (research.md)
+- Merge pull request #1 from Michael-Obele/master
+- Add initial constitution and specification quality checklist for mono…
+- Add initial constitution and specification quality checklist for monorepo setup
+- Initial commit from Specify template
+
 - chore: add release changelog workflow and update README with release badge
 - chore(ci): add README release badge and changelog dry-run script
 - chore: add changelog verification workflow to ensure CHANGELOG.md updates

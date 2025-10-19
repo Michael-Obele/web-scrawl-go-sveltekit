@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/url"
 	"strings"
 	"time"
@@ -23,7 +24,15 @@ type ScraperService struct {
 
 // NewScraperService creates a new scraper service and initializes a persistent Chromedp context
 func NewScraperService(cfg *config.Config) *ScraperService {
-	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), chromedp.DefaultExecAllocatorOptions[:]...)
+	opts := append(chromedp.DefaultExecAllocatorOptions[:],
+		chromedp.DisableGPU,
+		chromedp.NoDefaultBrowserCheck,
+		chromedp.Flag("disable-background-timer-throttling", false),
+		chromedp.Flag("disable-backgrounding-occluded-windows", false),
+		chromedp.Flag("disable-renderer-backgrounding", false),
+		chromedp.UserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"),
+	)
+	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
 	chromedpCtx, _ := chromedp.NewContext(allocCtx)
 
 	return &ScraperService{
@@ -59,15 +68,21 @@ func (s *ScraperService) Scrape(ctx context.Context, targetURL string, depth int
 	// Try to fetch with Chromedp for JS-rendered content first
 	html, err := s.fetchWithChromedp(timeoutCtx, targetURL)
 	if err != nil {
+		log.Printf("Chromedp failed for %s: %v", targetURL, err)
 		// Fallback to Colly if Chromedp fails
 		result.Warnings = append(result.Warnings, fmt.Sprintf("Chromedp failed (%v), falling back to static fetch", err))
 		html, err = s.fetchWithColly(targetURL, depth, result)
 		if err != nil {
+			log.Printf("Colly also failed for %s: %v", targetURL, err)
 			return nil, fmt.Errorf("scraping failed: %w", err)
 		}
 	} else {
 		// Extract links from the Chromedp-rendered HTML
 		s.extractLinksFromHTML(html, parsedURL, result)
+	}
+	if html == "" {
+		log.Printf("Warning: Empty HTML captured for %s", targetURL)
+		result.Warnings = append(result.Warnings, "Captured HTML was empty")
 	}
 
 	// Parse HTML and extract content
@@ -84,6 +99,7 @@ func (s *ScraperService) Scrape(ctx context.Context, targetURL string, depth int
 
 	// Convert main content to markdown
 	result.Markdown = s.convertToMarkdown(doc)
+	result.RawHTML = html
 
 	return result, nil
 }
@@ -102,6 +118,8 @@ func (s *ScraperService) fetchWithChromedp(ctx context.Context, targetURL string
 	err := chromedp.Run(timeoutCtx,
 		chromedp.Navigate(targetURL),
 		chromedp.WaitReady("body"),
+		chromedp.WaitVisible("body", chromedp.ByQuery),
+		chromedp.Sleep(2*time.Second),
 		chromedp.OuterHTML("html", &html),
 	)
 
@@ -197,47 +215,9 @@ func (s *ScraperService) extractLinksFromHTML(html string, baseURL *url.URL, res
 func (s *ScraperService) convertToMarkdown(doc *goquery.Document) string {
 	var markdown strings.Builder
 
-	// Extract main content - try common content selectors
-	contentSelectors := []string{"main", "article", ".content", "#content", "body"}
-	var content *goquery.Selection
-
-	for _, selector := range contentSelectors {
-		content = doc.Find(selector).First()
-		if content.Length() > 0 {
-			break
-		}
-	}
-
-	if content.Length() == 0 {
-		content = doc.Find("body")
-	}
-
-	// Convert headings
-	content.Find("h1, h2, h3, h4, h5, h6").Each(func(i int, sel *goquery.Selection) {
-		level := sel.Nodes[0].Data[1] - '0' // Extract heading level from tag name
-		text := strings.TrimSpace(sel.Text())
-		if text != "" {
-			markdown.WriteString(strings.Repeat("#", int(level)) + " " + text + "\n\n")
-		}
-	})
-
-	// Convert paragraphs
-	content.Find("p").Each(func(i int, sel *goquery.Selection) {
-		text := strings.TrimSpace(sel.Text())
-		if text != "" {
-			markdown.WriteString(text + "\n\n")
-		}
-	})
-
-	// Convert lists
-	content.Find("ul, ol").Each(func(i int, sel *goquery.Selection) {
-		sel.Find("li").Each(func(j int, li *goquery.Selection) {
-			text := strings.TrimSpace(li.Text())
-			if text != "" {
-				markdown.WriteString("- " + text + "\n")
-			}
-		})
-		markdown.WriteString("\n")
+	// Process the entire body
+	doc.Find("body").Children().Each(func(i int, sel *goquery.Selection) {
+		s.nodeToMarkdown(sel, &markdown)
 	})
 
 	result := markdown.String()
@@ -247,4 +227,108 @@ func (s *ScraperService) convertToMarkdown(doc *goquery.Document) string {
 	}
 
 	return result
+}
+
+func (s *ScraperService) nodeToMarkdown(sel *goquery.Selection, markdown *strings.Builder) {
+	// Handle different node types
+	switch goquery.NodeName(sel) {
+	case "h1", "h2", "h3", "h4", "h5", "h6":
+		level := sel.Nodes[0].Data[1] - '0' // Extract heading level from tag name
+		text := strings.TrimSpace(sel.Text())
+		if text != "" {
+			markdown.WriteString(strings.Repeat("#", int(level)) + " " + text + "\n\n")
+		}
+	case "p":
+		text := strings.TrimSpace(sel.Text())
+		if text != "" {
+			markdown.WriteString(text + "\n\n")
+		}
+	case "ul", "ol":
+		sel.Find("li").Each(func(j int, li *goquery.Selection) {
+			text := strings.TrimSpace(li.Text())
+			if text != "" {
+				if goquery.NodeName(sel) == "ul" {
+					markdown.WriteString("- " + text + "\n")
+				} else {
+					markdown.WriteString(fmt.Sprintf("%d. %s\n", j+1, text))
+				}
+			}
+		})
+		markdown.WriteString("\n")
+	case "pre":
+		code := sel.Find("code")
+		lang := code.AttrOr("class", "")
+		lang = strings.TrimPrefix(lang, "language-")
+		markdown.WriteString(fmt.Sprintf("```%s\n%s\n```\n\n", lang, code.Text()))
+	case "code":
+		// Handle inline code if not in a pre block
+		if sel.Parent().Not("pre").Length() > 0 {
+			markdown.WriteString(fmt.Sprintf("`%s`", sel.Text()))
+		}
+	case "blockquote":
+		text := strings.TrimSpace(sel.Text())
+		lines := strings.Split(text, "\n")
+		for _, line := range lines {
+			markdown.WriteString("> " + line + "\n")
+		}
+		markdown.WriteString("\n")
+	case "img":
+		alt := sel.AttrOr("alt", "")
+		src := sel.AttrOr("src", "")
+		markdown.WriteString(fmt.Sprintf("![%s](%s)\n\n", alt, src))
+	case "a":
+		href := sel.AttrOr("href", "")
+		text := sel.Text()
+		markdown.WriteString(fmt.Sprintf("[%s](%s)", text, href))
+	default:
+		// For other block-level elements, just get the text
+		if isBlockElement(goquery.NodeName(sel)) {
+			text := strings.TrimSpace(sel.Text())
+			if text != "" {
+				markdown.WriteString(text + "\n\n")
+			}
+		} else { // Inline elements
+			markdown.WriteString(sel.Text())
+		}
+	}
+}
+
+func isBlockElement(tag string) bool {
+	blockTags := map[string]bool{
+		"address":    true,
+		"article":    true,
+		"aside":      true,
+		"blockquote": true,
+		"canvas":     true,
+		"dd":         true,
+		"div":        true,
+		"dl":         true,
+		"dt":         true,
+		"fieldset":   true,
+		"figcaption": true,
+		"figure":     true,
+		"footer":     true,
+		"form":       true,
+		"h1":         true,
+		"h2":         true,
+		"h3":         true,
+		"h4":         true,
+		"h5":         true,
+		"h6":         true,
+		"header":     true,
+		"hr":         true,
+		"li":         true,
+		"main":       true,
+		"nav":        true,
+		"noscript":   true,
+		"ol":         true,
+		"p":          true,
+		"pre":        true,
+		"section":    true,
+		"table":      true,
+		"tfoot":      true,
+		"ul":         true,
+		"video":      true,
+	}
+	return blockTags[tag]
 }
