@@ -26,8 +26,22 @@ const ScrapeInputSchema = v.object({
  * Works with progressive enhancement - no JavaScript required!
  */
 export const scrapeWebsite = form(ScrapeInputSchema, async (data) => {
-  // Call the backend API
+  // Check backend health first
   const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
+
+  try {
+    const healthResponse = await fetch(`${baseUrl}/health`);
+    if (!healthResponse.ok) {
+      throw new Error("Backend service is not responding");
+    }
+  } catch (error) {
+    console.error("❌ Backend health check failed:", error);
+    throw new Error(
+      "Backend is sleeping. Please visit the health page to wake it up.",
+    );
+  }
+
+  // Call the backend API
   const apiUrl = `${baseUrl}/scrape?url=${encodeURIComponent(
     data.url,
   )}&depth=${data.depth}`;

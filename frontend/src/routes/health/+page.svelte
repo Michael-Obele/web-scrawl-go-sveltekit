@@ -5,10 +5,40 @@
     let { data } = $props();
 
     let refreshing = $state(false);
+    let waking = $state(false);
+
     async function refresh() {
         refreshing = true;
         await invalidateAll();
         refreshing = false;
+    }
+
+    async function checkHealth() {
+        const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
+        try {
+            const response = await fetch(`${baseUrl}/health`);
+            return response.ok;
+        } catch {
+            return false;
+        }
+    }
+
+    async function wakeBackend() {
+        waking = true;
+        const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
+        // Open backend URL in new tab to wake it up
+        window.open(baseUrl, "_blank");
+
+        // Poll health every 5 seconds
+        const poll = async () => {
+            if (await checkHealth()) {
+                waking = false;
+                await refresh(); // Refresh the page to show healthy status
+                return;
+            }
+            setTimeout(poll, 5000);
+        };
+        poll();
     }
 </script>
 
@@ -79,8 +109,16 @@
                         API Response Time: {data.duration}ms
                     </p>
                     <p class="text-red-700 text-sm mt-2">
-                        Make sure the backend server is running on port 8080.
+                        The backend server may be sleeping. Click the button
+                        below to wake it up.
                     </p>
+                    <button
+                        onclick={wakeBackend}
+                        disabled={waking}
+                        class="mt-4 inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                    >
+                        {waking ? "Waking up..." : "Wake Backend Server"}
+                    </button>
                 </div>
             </div>
         </div>

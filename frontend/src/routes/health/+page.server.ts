@@ -21,7 +21,7 @@ export const load: PageServerLoad = async ({ fetch }) => {
     const duration = Date.now() - startTime;
     return {
       health: null,
-      error: "Backend service is not available",
+      error: `Backend service is not available, ${error}`,
       duration,
     };
   }
