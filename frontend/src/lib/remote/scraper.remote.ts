@@ -9,14 +9,15 @@ const ScrapeInputSchema = v.object({
   url: v.pipe(
     v.string(),
     v.nonEmpty("URL is required"),
-    v.url("Please enter a valid URL"),
+    v.url("Please enter a valid URL")
   ),
-  depth: v.pipe(
-    v.string(),
-    v.transform(Number),
-    v.number(),
-    v.minValue(1, "Depth must be at least 1"),
-    v.maxValue(3, "Depth cannot exceed 3"),
+  depth: v.optional(
+    v.pipe(
+      v.number(),
+      v.minValue(1, "Depth must be at least 1"),
+      v.maxValue(3, "Depth cannot exceed 3")
+    ),
+    1 // Default value of "1" (will be transformed to number 1)
   ),
 });
 
@@ -37,14 +38,14 @@ export const scrapeWebsite = form(ScrapeInputSchema, async (data) => {
   } catch (error) {
     console.error("❌ Backend health check failed:", error);
     throw new Error(
-      "Backend is sleeping. Please visit the health page to wake it up.",
+      "Backend is sleeping. Please visit the health page to wake it up."
     );
   }
 
   // Call the backend API
-  const apiUrl = `${baseUrl}/scrape?url=${encodeURIComponent(
-    data.url,
-  )}&depth=${data.depth}`;
+  const apiUrl = `${baseUrl}/scrape?url=${encodeURIComponent(data.url)}&depth=${
+    data.depth
+  }`;
 
   const response = await fetch(apiUrl, {
     method: "GET",
@@ -62,15 +63,15 @@ export const scrapeWebsite = form(ScrapeInputSchema, async (data) => {
   console.log(
     "📡 Backend response status:",
     response.status,
-    response.statusText,
+    response.statusText
   );
   console.log(
     "📡 Backend response headers:",
-    Object.fromEntries(response.headers.entries()),
+    Object.fromEntries(response.headers.entries())
   );
 
   const responseText = await response.text();
-  console.log("📄 Raw response text:", responseText);
+  // console.log("📄 Raw response text:", responseText);
 
   let result: ScrapeResult;
   try {

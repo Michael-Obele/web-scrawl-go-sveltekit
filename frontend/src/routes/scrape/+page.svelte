@@ -17,7 +17,7 @@
     </p>
   </div>
 
-  {#if scrapeWebsite.result?.final}
+  {#if scrapeWebsite.result?.success}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <div>
         <Card.Root>
@@ -34,6 +34,7 @@
                 <Input
                   id="scrape-url"
                   {...scrapeWebsite.fields.url.as("url")}
+                  value={scrapeWebsite.fields.url.value}
                   placeholder="https://example.com"
                   class="w-full"
                 />
@@ -45,10 +46,11 @@
               </div>
 
               <div class="space-y-2">
-                <Label for="scrape-depth">Crawl Depth</Label>
+                <Label for="scrape-depth">Crawl Depth (Optional)</Label>
                 <Input
                   id="scrape-depth"
-                  {...scrapeWebsite.fields.depth.as("text")}
+                  {...scrapeWebsite.fields.depth.as("number")}
+                  value={scrapeWebsite.fields.depth.value}
                   class="w-24"
                 />
                 {#each scrapeWebsite.fields.depth.issues() as issue, i (i)}
@@ -57,7 +59,7 @@
                   </p>
                 {/each}
                 <p class="text-sm text-muted-foreground">
-                  How many levels deep to crawl (1-3)
+                  How many levels deep to crawl (1-3, defaults to 1)
                 </p>
               </div>
 
@@ -217,10 +219,10 @@
             </div>
 
             <div class="space-y-2">
-              <Label for="scrape-depth">Crawl Depth</Label>
+              <Label for="scrape-depth">Crawl Depth (Optional)</Label>
               <Input
                 id="scrape-depth"
-                {...scrapeWebsite.fields.depth.as("text")}
+                {...scrapeWebsite.fields.depth.as("number")}
                 class="w-24"
               />
               {#each scrapeWebsite.fields.depth.issues() as issue, i (i)}
@@ -229,7 +231,7 @@
                 </p>
               {/each}
               <p class="text-sm text-muted-foreground">
-                How many levels deep to crawl (1-3)
+                How many levels deep to crawl (1-3, defaults to 1)
               </p>
             </div>
 
