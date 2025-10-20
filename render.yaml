@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: scraper-backend
+    runtime: go
+    buildCommand: "go mod download && go build -o app ."
+    startCommand: "./app"
+    rootDir: backend
