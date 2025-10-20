@@ -17,7 +17,7 @@
     </p>
   </div>
 
-  {#if scrapeWebsite.result?.success}
+  {#if scrapeWebsite.result}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <div>
         <Card.Root>
@@ -29,12 +29,11 @@
           </Card.Header>
           <Card.Content class="space-y-6">
             <form {...scrapeWebsite} class="space-y-6">
-              <div class="space-y-2">
+                            <div class="space-y-2">
                 <Label for="scrape-url">Website URL</Label>
                 <Input
                   id="scrape-url"
                   {...scrapeWebsite.fields.url.as("url")}
-                  value={scrapeWebsite.fields.url.value}
                   placeholder="https://example.com"
                   class="w-full"
                 />
@@ -49,8 +48,7 @@
                 <Label for="scrape-depth">Crawl Depth (Optional)</Label>
                 <Input
                   id="scrape-depth"
-                  {...scrapeWebsite.fields.depth.as("number")}
-                  value={scrapeWebsite.fields.depth.value}
+                  {...scrapeWebsite.fields.depth.as("text")}
                   class="w-24"
                 />
                 {#each scrapeWebsite.fields.depth.issues() as issue, i (i)}
@@ -89,9 +87,22 @@
               </div>
             </Card.Content>
           </Card.Root>
-        {/if}
-
-        {#if scrapeWebsite.result?.final}
+        {:else if scrapeWebsite.result && !scrapeWebsite.result.success}
+          <Card.Root>
+            <Card.Content class="pt-6">
+              <div class="text-center space-y-4">
+                <div class="text-red-500">
+                  <Scale class="h-12 w-12 mx-auto mb-4" />
+                  <h3 class="text-lg font-semibold text-red-700 mb-2">Scraping Failed</h3>
+                  <p class="text-red-600">{scrapeWebsite.result.error}</p>
+                </div>
+                <p class="text-sm text-muted-foreground">
+                  Please check the URL and try again, or visit the health page to ensure the backend is running.
+                </p>
+              </div>
+            </Card.Content>
+          </Card.Root>
+        {:else if scrapeWebsite.result && scrapeWebsite.result.success}
           <Card.Root>
             <Card.Header>
               <Card.Title>{scrapeWebsite.result.final.title}</Card.Title>
@@ -222,7 +233,7 @@
               <Label for="scrape-depth">Crawl Depth (Optional)</Label>
               <Input
                 id="scrape-depth"
-                {...scrapeWebsite.fields.depth.as("number")}
+                {...scrapeWebsite.fields.depth.as("text")}
                 class="w-24"
               />
               {#each scrapeWebsite.fields.depth.issues() as issue, i (i)}
