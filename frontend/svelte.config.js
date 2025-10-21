@@ -23,6 +23,13 @@ const config = {
       remoteFunctions: true,
     },
   },
+  vitePlugin: {
+    inspector: {
+      toggleKeyCombo: "alt-x",
+      showToggleButton: "always",
+      toggleButtonPos: "bottom-right",
+    },
+  },
 
   compilerOptions: {
     experimental: {

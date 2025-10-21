@@ -4,8 +4,10 @@
     import * as Alert from "$lib/components/ui/alert/index.js";
     import CheckCircle2Icon from "@lucide/svelte/icons/check-circle-2";
     import AlertCircleIcon from "@lucide/svelte/icons/alert-circle";
+    import { Badge } from "$lib/components/ui/badge/index.js";
+    import type { PageProps } from "./$types";
 
-    let { data } = $props();
+    let { data }: PageProps = $props();
 
     let refreshing = $state(false);
     let waking = $state(false);
@@ -50,15 +52,15 @@
         <h2 class="text-3xl font-bold">Health Check</h2>
 
         <div class="flex items-center gap-3">
-            <!-- Environment badge -->
+            <!-- Environment badge using shadcn Badge component -->
             {#if data?.env}
-                <span
-                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border"
-                    class:bg-green-100={data.env === "development"}
-                    class:bg-sky-100={data.env === "production"}
+                <Badge
+                    variant={data.env === "development"
+                        ? "secondary"
+                        : "outline"}
                 >
                     Mode: {data.env}
-                </span>
+                </Badge>
             {/if}
 
             <button

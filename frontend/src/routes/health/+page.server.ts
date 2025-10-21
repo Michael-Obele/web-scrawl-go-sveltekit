@@ -28,9 +28,11 @@ export const load: PageServerLoad = async ({ fetch }) => {
     }
 
     const health = await response.json();
+    console.log({ health, error: null, duration, env: mode, wakeInstructions });
     return { health, error: null, duration, env: mode, wakeInstructions };
   } catch (error) {
     const duration = Date.now() - startTime;
+    console.error({ error: null, duration, env: mode, wakeInstructions });
     return {
       health: null,
       error: `Backend service is not available, ${error}`,

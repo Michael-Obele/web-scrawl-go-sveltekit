@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -15,6 +18,7 @@ import (
 	"github.com/Michael-Obele/web-scraper-backend/src/services"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/kpechenenko/rword"
 )
 
 func main() {
@@ -26,6 +30,16 @@ func main() {
 	defer scraperService.Close() // Ensure Chromedp is closed on exit
 
 	scrapeHandler := api.NewScrapeHandler(scraperService)
+
+	// Initialize rword generator once at startup (fallback to nil on error)
+	var wordGen rword.GenerateRandom
+	if g, err := rword.New(); err == nil {
+		wordGen = g
+		log.Println("rword dictionary loaded, using random-word generator")
+	} else {
+		wordGen = nil
+		log.Printf("rword init failed, falling back to simple phrases: %v", err)
+	}
 
 	router := gin.Default()
 
@@ -40,9 +54,52 @@ func main() {
 
 	router.Use(cors.New(corsConfig))
 
+	// Phrase templates that may use 1 or 2 random words
+	templates := []string{
+		"Your project is live — %s!",
+		"All systems go. %s %s",
+		"Backend up and running — %s",
+		"Happy scraping — %s",
+		"Ready when you are: %s %s",
+	}
+
 	// Register routes
+	router.GET("/", func(c *gin.Context) {
+		// If rword is available, produce template-based phrase
+		if wordGen != nil {
+			// pick a template
+			t := templates[rand.Intn(len(templates))]
+			// count placeholders (%s)
+			count := strings.Count(t, "%s")
+			// get that many random words
+			words := wordGen.WordList(count)
+			// Title-case the first word for readability
+			if len(words) > 0 {
+				words[0] = strings.Title(words[0])
+			}
+			// format template with random words
+			message := fmt.Sprintf(t, interfaceSlice(words)...)
+			log.Printf("GET / - %s", message)
+			c.String(http.StatusOK, message)
+			return
+		}
+
+		// Fallback: use the simple static phrases
+		phrases := []string{
+			"Your project is live!",
+			"All systems go.",
+			"Happy scraping!",
+		}
+		c.String(http.StatusOK, phrases[rand.Intn(len(phrases))])
+	})
 	router.GET("/health", handlers.HealthCheck)
 	router.GET("/scrape", scrapeHandler.HandleScrape)
+
+	// Global handler for unknown routes - log and return a 404 response
+	router.NoRoute(func(c *gin.Context) {
+		log.Printf("NoRoute: %s %s from %s", c.Request.Method, c.Request.URL.Path, c.ClientIP())
+		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+	})
 
 	// Custom HTTP server for graceful shutdown
 	srv := &http.Server{
@@ -73,4 +130,13 @@ func main() {
 	}
 
 	log.Println("Server exiting")
+}
+
+// helper to convert []string to []interface{} for fmt.Sprintf
+func interfaceSlice(ss []string) []interface{} {
+	out := make([]interface{}, len(ss))
+	for i, s := range ss {
+		out[i] = s
+	}
+	return out
 }
